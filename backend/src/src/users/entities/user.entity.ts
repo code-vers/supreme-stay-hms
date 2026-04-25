@@ -1,5 +1,6 @@
 import { UserStatus } from 'src/common/enum/user.enum';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Role } from './role.entity';
 
 @Entity('users')
 export class User {
@@ -30,6 +31,6 @@ export class User {
   @Column({ type: 'enum', enum: UserStatus, default: UserStatus.ACTIVE })
   status!: UserStatus;
 
-  // @ManyToOne(() => Role, (role) => role.users)
-  // role_id!: string;
+  @ManyToOne(() => Role, (role) => role.id)
+  role_id!: string;
 }
