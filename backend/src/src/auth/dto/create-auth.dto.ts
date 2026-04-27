@@ -21,7 +21,7 @@ export class createUserDto {
   image!: string;
 
   @IsString()
-  adress!: string;
+  address!: string;
 
   @IsString()
   phone!: string;

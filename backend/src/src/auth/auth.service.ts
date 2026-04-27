@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { AuthDao } from './auth.dao';
-import { CreateAuthDto } from './dto/create-auth.dto';
+import { createUserDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
 
 @Injectable()
 export class AuthService {
   constructor(private readonly AuthDao: AuthDao) {}
 
-  async register(createAuthDto: CreateAuthDto) {
+  async register(createUserDto: createUserDto) {
     return await this.AuthDao.register(createUserDto);
   }
 
