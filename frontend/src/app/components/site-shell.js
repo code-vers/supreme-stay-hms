@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -36,7 +37,13 @@ export default function SiteShell({ children }) {
             <div className='flex lg:flex-1'>
               <Link href='/' className='-m-1.5 p-1.5'>
                 <span className='sr-only'>Your Company</span>
-                <img className='h-8 w-auto' src='/vercel.svg' alt='' />
+                <Image
+                  width={20}
+                  height={20}
+                  className='h-8 w-auto'
+                  src='/vercel.svg'
+                  alt='UHMS'
+                />
               </Link>
             </div>
             <div className='flex lg:hidden'>{/* Mobile menu button */}</div>

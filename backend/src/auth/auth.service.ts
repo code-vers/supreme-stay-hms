@@ -19,6 +19,7 @@ export class AuthService {
     private config: ConfigService,
   ) {}
 
+  // Registration with email, password, firstName, lastName - checks for existing email, hashes password, creates user
   async register(registerDto: RegisterDto) {
     const { email, password, firstName, lastName } = registerDto;
 
@@ -36,6 +37,7 @@ export class AuthService {
     return { message: 'User registered successfully', userId: user.id };
   }
 
+  // Login with email and password, return access and refresh tokens
   async login(loginDto: LoginDto) {
     const { email, password } = loginDto;
     const user = await this.usersService.findOneByEmail(email);
@@ -59,6 +61,7 @@ export class AuthService {
     };
   }
 
+  // Refresh tokens - validate refresh token, issue new access and refresh tokens
   async refresh(refreshToken: string) {
     const user = await this.usersService.findOneByRefreshToken(refreshToken);
     if (!user) throw new UnauthorizedException('Invalid refresh token');
@@ -78,18 +81,21 @@ export class AuthService {
     return tokens;
   }
 
+  // Logout - invalidate refresh token
   async logout(userId: string) {
     await this.usersService.updateRefreshToken(userId, null);
     return { message: 'Logged out successfully' };
   }
 
+  // Get user profile - return user info without password and refresh token
   async getProfile(userId: string) {
     const user = await this.usersService.findOneById(userId);
     if (!user) throw new UnauthorizedException();
-    const { password, refreshToken, ...profile } = user;
+    const { ...profile } = user;
     return profile;
   }
 
+  // Helper to generate access and refresh tokens
   private async generateTokens(user: User) {
     const payload = { sub: user.id, email: user.email, role: user.role };
 

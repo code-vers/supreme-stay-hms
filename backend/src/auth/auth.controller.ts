@@ -17,33 +17,38 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  // Registration endpoint - accepts email, password, firstName, lastName
   @Post('register')
   register(@Body() dto: RegisterDto) {
     return this.authService.register(dto);
   }
 
+  // Login endpoint - accepts email and password, returns access and refresh tokens
   @Post('login')
   @HttpCode(HttpStatus.OK)
   login(@Body() dto: LoginDto) {
     return this.authService.login(dto);
   }
 
+  // Refresh token endpoint - accepts refresh token, returns new access and refresh tokens
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   refresh(@Body('refresh_token') refreshToken: string) {
     return this.authService.refresh(refreshToken);
   }
 
+  // Logout endpoint - invalidates refresh token
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
   logout(@Req() req: any) {
-    return this.authService.logout(req.user.userId);
+    return this.authService.logout((req.user?.userId ?? '') as string);
   }
 
+  // Get profile endpoint - returns user profile, protected by JWT auth guard
   @Get('me')
   @UseGuards(JwtAuthGuard)
   getProfile(@Req() req: any) {
-    return this.authService.getProfile(req.user.userId);
+    return this.authService.getProfile((req.user?.userId ?? '') as string);
   }
 }
