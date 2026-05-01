@@ -14,7 +14,7 @@ export default function Navbar() {
   ];
 
   return (
-    <section className='border-b border-gray-200 bg-white relative'>
+    <section className='border-b border-gray-200 bg-(--text-secondary) relative'>
       <nav className='max-w-7xl mx-auto py-3 px-4 sm:px-6 lg:px-8 flex items-center justify-between'>
         {/* Logo */}
         <div className='text-2xl font-bold tracking-widest'>

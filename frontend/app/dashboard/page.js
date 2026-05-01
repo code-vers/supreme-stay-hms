@@ -1,23 +1,22 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { api } from '@/lib/api';
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function DashboardPage() {
   const router = useRouter();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    const token = localStorage.getItem('access_token');
-    const storedUser = localStorage.getItem('user');
+    const token = localStorage.getItem("access_token");
+    const storedUser = localStorage.getItem("user");
 
     if (!token || !storedUser) {
-      setError('You need to be logged in to access the dashboard.');
+      setError("You need to be logged in to access the dashboard.");
       setLoading(false);
-      router.push('/login');
+      router.push("/login");
       return;
     }
 
@@ -50,7 +49,9 @@ export default function DashboardPage() {
       <h1 className='text-2xl font-bold mb-4'>Dashboard</h1>
       {user && (
         <div>
-          <p>Welcome, {user.firstName} {user.lastName}!</p>
+          <p>
+            Welcome, {user.firstName} {user.lastName}!
+          </p>
           <p>Your email: {user.email}</p>
           {/* Add more user-specific or dashboard content here */}
         </div>
