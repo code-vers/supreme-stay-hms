@@ -1,28 +1,24 @@
 import Image from "next/image";
+import Title from "../shared/title";
 
 const HomeBanner = () => {
   return (
     <section className='w-full bg-[#efefef] border-3 border-(--border)'>
-      <div className='mx-auto p-3'>
-        <div className='relative h-170  overflow-hidden'>
+      <div className='mx-auto px-0 sm:px-3 md:p-3'>
+        <div className='relative h-65 sm:h-80 md:h-170 overflow-hidden'>
           {/* Background image */}
           <Image
             src='/home/banner.jpg'
             alt='Renewable energy installation'
             fill
             priority
-            className='object-cover'
+            className='object-cover object-center'
           />
 
           {/* VERY SUBTLE LEFT BLUR (FIGMA-LIKE) */}
           <div className='absolute inset-0 pointer-events-none'>
             {/* Blur layer (very light) */}
-            <div
-              className='
-                absolute left-0 top-0 h-full w-[50%]
-                backdrop-blur-[2px]
-              '
-            />
+            <div className='absolute left-0 top-0 h-full w-full backdrop-blur-[1px]' />
 
             {/* Soft fade (not dark) */}
             <div
@@ -37,41 +33,13 @@ const HomeBanner = () => {
           </div>
 
           {/* Content */}
-          <div className='relative z-10 h-full flex items-start'>
-            <div
-              className='
-     pt-60
-      pl-6 sm:pl-10 lg:pl-18
-      max-w-full sm:max-w-180 lg:max-w-245
-    '>
-              <h1
-                className='
-    text-white
-    font-semibold
-    leading-[1.15]
-    mb-5 sm:mb-6
-    text-[32px]
-    sm:text-[42px]
-    lg:text-[56px]
-    max-w-200
-  '>
-                Bringing a Greener Future to
-                <br />
-                the United Kingdom One Service at a Time
-              </h1>
-
-              <p
-                className='
-        text-white/90
-        leading-[1.7]
-        text-[14px]
-        sm:text-[15px]
-        lg:text-[16px]
-        max-w-full sm:max-w-105 lg:max-w-130
-      '>
-                The UK’s first one-stop solution for managing your renewable
-                energy company all in one place.
-              </p>
+          <div className='relative z-10 h-full flex items-start justify-center'>
+            <div className='mt-8 md:mt-15'>
+              <Title
+                title='Plan Your Staycation With Us'
+                description='Discover the best hotels, resorts, and vacation rentals for your next getaway. Book with confidence and enjoy unforgettable experiences.'
+                className=''
+              />
             </div>
           </div>
         </div>
