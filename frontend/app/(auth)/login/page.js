@@ -1,43 +1,43 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { api } from '@/lib/api';
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { api } from "../../../lib/api";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem('access_token');
+    const token = localStorage.getItem("access_token");
     if (token) {
       setIsLoggedIn(true);
     }
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('user');
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("user");
     setIsLoggedIn(false);
-    router.push('/login');
+    router.push("/login");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
 
     try {
-      const data = await api.post('/auth/login', { email, password });
-      localStorage.setItem('access_token', data.access_token);
-      localStorage.setItem('user', JSON.stringify(data.user));
+      const data = await api.post("/auth/login", { email, password });
+      localStorage.setItem("access_token", data.access_token);
+      localStorage.setItem("user", JSON.stringify(data.user));
       setIsLoggedIn(true);
-      router.push('/');
+      router.push("/");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -50,7 +50,7 @@ export default function LoginPage() {
       <div className='w-full max-w-md space-y-8'>
         <div>
           <h2 className='mt-6 text-center text-3xl font-extrabold text-gray-900'>
-            {isLoggedIn ? 'Welcome Back!' : 'Sign in to your account'}
+            {isLoggedIn ? "Welcome Back!" : "Sign in to your account"}
           </h2>
         </div>
         {isLoggedIn ? (
@@ -97,7 +97,7 @@ export default function LoginPage() {
                 type='submit'
                 disabled={loading}
                 className='group relative flex w-full justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50'>
-                {loading ? 'Signing in...' : 'Sign in'}
+                {loading ? "Signing in..." : "Sign in"}
               </button>
             </div>
           </form>
@@ -106,7 +106,7 @@ export default function LoginPage() {
           <p className='text-sm text-gray-600'>
             {!isLoggedIn && (
               <>
-                Don't have an account?{' '}
+                Don`&apos;`t have an account?{" "}
                 <Link
                   href='/register'
                   className='font-medium text-indigo-600 hover:text-indigo-500'>
