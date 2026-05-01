@@ -1,18 +1,18 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { api } from '@/lib/api';
+import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { api } from "../../../lib/api";
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    firstName: '',
-    lastName: '',
+    email: "",
+    password: "",
+    firstName: "",
+    lastName: "",
   });
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -22,12 +22,12 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
 
     try {
-      await api.post('/auth/register', formData);
-      router.push('/login');
+      await api.post("/auth/register", formData);
+      router.push("/login");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -99,13 +99,13 @@ export default function RegisterPage() {
               type='submit'
               disabled={loading}
               className='group relative flex w-full justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50'>
-              {loading ? 'Creating account...' : 'Register'}
+              {loading ? "Creating account..." : "Register"}
             </button>
           </div>
         </form>
         <div className='text-center'>
           <p className='text-sm text-gray-600'>
-            Already have an account?{' '}
+            Already have an account?{" "}
             <Link
               href='/login'
               className='font-medium text-indigo-600 hover:text-indigo-500'>

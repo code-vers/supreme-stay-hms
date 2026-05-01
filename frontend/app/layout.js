@@ -1,6 +1,11 @@
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Spectral } from "next/font/google";
 import "./globals.css";
-import SiteShell from "./components/site-shell";
+
+const spectral = Spectral({
+  variable: "--font-spectral",
+  subsets: ["latin"],
+  weight: ["400", "600", "700"],
+});
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -21,10 +26,9 @@ export default function RootLayout({ children }) {
   return (
     <html
       lang='en'
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
-      <body className='min-h-full flex flex-col'>
-        <SiteShell>{children}</SiteShell>
-      </body>
+      className={`${spectral.variable} ${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      style={{ fontFamily: "var(--font-spectral)" }}>
+      <body className='min-h-screen flex flex-col'>{children}</body>
     </html>
   );
 }
