@@ -1,10 +1,18 @@
+type TitleProps = {
+  title: string;
+  description?: string;
+  className?: string;
+  titleClassName?: string;
+  descriptionClassName?: string;
+};
+
 export default function Title({
   title,
   description,
   className = "",
   titleClassName = "",
   descriptionClassName = "",
-}) {
+}: TitleProps) {
   return (
     <div className={`max-w-4xl px-2 sm:px-0 ${className}`.trim()}>
       <h1

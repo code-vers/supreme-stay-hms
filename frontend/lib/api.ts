@@ -1,12 +1,12 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 export const api = {
-  async post(endpoint, data) {
-    const token = localStorage.getItem('access_token');
+  async post(endpoint: string, data: unknown): Promise<any> {
+    const token = localStorage.getItem("access_token");
     const response = await fetch(`${API_URL}${endpoint}`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         ...(token && { Authorization: `Bearer ${token}` }),
       },
       body: JSON.stringify(data),
@@ -15,14 +15,14 @@ export const api = {
     const result = await response.json();
 
     if (!response.ok) {
-      throw new Error(result.message || 'Something went wrong');
+      throw new Error(result.message || "Something went wrong");
     }
 
     return result;
   },
- 
-  async get(endpoint) {
-    const token = localStorage.getItem('access_token');
+
+  async get(endpoint: string): Promise<any> {
+    const token = localStorage.getItem("access_token");
     const response = await fetch(`${API_URL}${endpoint}`, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -32,7 +32,7 @@ export const api = {
     const result = await response.json();
 
     if (!response.ok) {
-      throw new Error(result.message || 'Something went wrong');
+      throw new Error(result.message || "Something went wrong");
     }
 
     return result;

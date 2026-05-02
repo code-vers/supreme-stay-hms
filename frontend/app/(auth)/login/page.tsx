@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { api } from "../../../lib/api";
@@ -27,7 +27,10 @@ export default function LoginPage() {
     router.push("/login");
   };
 
-  const handleSubmit = async (e) => {
+  const getErrorMessage = (error: unknown) =>
+    error instanceof Error ? error.message : "An unexpected error occurred.";
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
     setLoading(true);
@@ -39,7 +42,7 @@ export default function LoginPage() {
       setIsLoggedIn(true);
       router.push("/");
     } catch (err) {
-      setError(err.message);
+      setError(getErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -120,3 +123,13 @@ export default function LoginPage() {
     </div>
   );
 }
+
+// import React from 'react'
+
+// export default function LoginPage() {
+//   return (
+//     <>
+
+//     </>
+//   )
+// }

@@ -1,5 +1,6 @@
 import { Geist, Geist_Mono, Spectral } from "next/font/google";
 import "./globals.css";
+import type { ReactNode } from "react";
 
 const spectral = Spectral({
   variable: "--font-spectral",
@@ -22,7 +23,7 @@ export const metadata = {
   description: "Supreme Stay Hotel Management System",
 };
 
-export default function RootLayout({ children }) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
       lang='en'
