@@ -5,7 +5,7 @@ const HomeBanner = () => {
   return (
     <section className='w-full bg-[#efefef] border-3 border-(--border)'>
       <div className='mx-auto px-0 sm:px-3 md:p-3'>
-        <div className='relative h-65 sm:h-80 md:h-170 overflow-hidden'>
+        <div className='relative h-65 sm:h-80 md:h-200 overflow-hidden'>
           {/* Background image */}
           <Image
             src='/home/banner.jpg'
@@ -39,6 +39,8 @@ const HomeBanner = () => {
                 title='Plan Your Staycation With Us'
                 description='Discover the best hotels, resorts, and vacation rentals for your next getaway. Book with confidence and enjoy unforgettable experiences.'
                 className=''
+                titleClassName='text-gray-400! md:text-(--text-brand)!'
+                descriptionClassName='text-white! md:text-(--text-brand)!'
               />
             </div>
           </div>
