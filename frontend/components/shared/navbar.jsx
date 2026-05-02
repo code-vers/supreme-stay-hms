@@ -17,13 +17,18 @@ export default function Navbar() {
     <section className='border-b border-gray-200 bg-(--text-secondary) relative'>
       <nav className='max-w-480 mx-auto py-3 px-4 sm:px-6 lg:px-30 flex items-center justify-between'>
         {/* Logo */}
-        <div className='text-2xl font-bold tracking-widest'>
-          <Link
-            href='/'
-            className='text-(--text-brand) hover:text-gray-600 transition-colors'>
+        <Link href='/' className='flex items-center gap-2'>
+          <Image
+            src='/logo1.png'
+            alt='UHMS Logo'
+            width={32}
+            height={32}
+            className='h-8 w-auto'
+          />
+          <span className='text-2xl font-bold tracking-widest text-(--text-brand) hover:text-gray-600 transition-colors'>
             Elach
-          </Link>
-        </div>
+          </span>
+        </Link>
 
         {/* Hamburger Menu Button (Mobile) */}
         <button
