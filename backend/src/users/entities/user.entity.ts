@@ -4,14 +4,11 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  JoinColumn,
+  ManyToOne,
 } from 'typeorm';
 import { Exclude } from 'class-transformer';
-
-export enum UserRole {
-  ADMIN = 'admin',
-  STAFF = 'staff',
-  GUEST = 'guest',
-}
+import { Role } from 'src/roles/entities/role.entity';
 
 @Entity('users')
 export class User {
@@ -31,8 +28,21 @@ export class User {
   @Column({ nullable: true })
   lastName!: string;
 
-  @Column({ type: 'enum', enum: UserRole, default: UserRole.GUEST })
-  role!: UserRole;
+  @ManyToOne(() => Role, { nullable: true, eager: true })
+  @JoinColumn({ name: 'role_id' })
+  role!: Role;
+
+  @Column({ type: 'boolean', default: true })
+  status!: boolean;
+
+  @Column({ type: 'text', nullable: true })
+  imageUrl?: string;
+
+  @Column({ type: 'text', nullable: true })
+  phoneNumber?: string;
+
+  @Column({ type: 'text', nullable: true })
+  address?: string;
 
   @Column({ type: 'text', nullable: true })
   @Exclude()
