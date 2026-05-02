@@ -21,9 +21,10 @@ export default function Navbar() {
           <Image
             src='/logo1.png'
             alt='UHMS Logo'
-            width={32}
-            height={32}
-            className='h-8 w-auto'
+            width={40}
+            height={40}
+            className='h-9 w-auto'
+            priority
           />
           <span className='text-2xl font-bold tracking-widest text-(--text-brand) hover:text-gray-600 transition-colors'>
             Elach
