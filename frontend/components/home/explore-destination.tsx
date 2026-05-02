@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState, type MouseEvent } from "react";
 import Link from "next/link";
 import Title from "../shared/title";
 import Image from "next/image";
 
 export default function ExploreDestination() {
-  const [expandedCard, setExpandedCard] = useState(null);
+  const [expandedCard, setExpandedCard] = useState<number | null>(null);
 
   const destinationData = [
     {
@@ -29,7 +29,7 @@ export default function ExploreDestination() {
     },
   ];
 
-  const handleCardClick = (index, e) => {
+  const handleCardClick = (index: number, e: MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
     // Toggle description on touch devices

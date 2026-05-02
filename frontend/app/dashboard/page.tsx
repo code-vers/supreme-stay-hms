@@ -3,9 +3,15 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
+type DashboardUser = {
+  firstName: string;
+  lastName: string;
+  email: string;
+};
+
 export default function DashboardPage() {
   const router = useRouter();
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<DashboardUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -20,7 +26,7 @@ export default function DashboardPage() {
       return;
     }
 
-    setUser(JSON.parse(storedUser));
+    setUser(JSON.parse(storedUser) as DashboardUser);
     setLoading(false);
 
     // Optionally, you could fetch user data from the backend here
