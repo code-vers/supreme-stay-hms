@@ -6,6 +6,8 @@ import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { User } from './users/entities/user.entity';
+import { Role } from './roles/entities/role.entity';
+import { Permission } from './permissions/entities/permission.entity';
 
 @Module({
   imports: [
@@ -16,7 +18,7 @@ import { User } from './users/entities/user.entity';
       useFactory: (config: ConfigService) => ({
         type: 'postgres' as const,
         url: config.get<string>('DATABASE_URL'),
-        entities: [User],
+        entities: [User, Role, Permission],
         synchronize: true,
         logging: config.get<string>('DB_LOGGING') === 'true',
         ssl: { rejectUnauthorized: false },
