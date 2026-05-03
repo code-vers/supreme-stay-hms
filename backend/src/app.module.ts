@@ -18,6 +18,7 @@ import { Permission } from './permissions/entities/permission.entity';
       useFactory: (config: ConfigService) => ({
         type: 'postgres' as const,
         url: config.get<string>('DATABASE_URL'),
+          autoLoadEntities: true,
         entities: [User, Role, Permission],
         synchronize: true,
         logging: config.get<string>('DB_LOGGING') === 'true',

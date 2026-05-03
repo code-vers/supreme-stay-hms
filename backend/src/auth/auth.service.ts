@@ -15,6 +15,7 @@ import { User } from '../users/entities/user.entity';
 import { PasswordResetToken } from './entity/password.reset.token.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, LessThan } from 'typeorm';
+import { MailService } from 'src/common/mail/mail.service';
 
 @Injectable()
 export class AuthService {
@@ -22,6 +23,7 @@ export class AuthService {
     private usersService: UsersService,
     private jwtService: JwtService,
     private config: ConfigService,
+    private mailService : MailService,
 
   
     @InjectRepository(PasswordResetToken)
@@ -132,10 +134,10 @@ export class AuthService {
     }
 
     // old token invalidate
-    await this.tokenRepo.update(
-      { userId: user.id, used: false },
-      { used: true },
-    );
+    // await this.tokenRepo.update(
+    //   { userId: user.id, used: false },
+    //   { used: true },
+    // );
 
     const rawToken = crypto.randomBytes(32).toString('hex');
 
@@ -157,7 +159,10 @@ export class AuthService {
 
     const resetLink = `http://localhost:3000/reset-password?token=${rawToken}`;
 
-    await this.sendMail(user.email, resetLink);
+  await this.mailService.sendResetPasswordEmail(
+  user.email,
+  resetLink,
+);
 
     return { message: 'If account exists, reset link sent' };
   }

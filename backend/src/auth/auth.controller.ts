@@ -53,6 +53,22 @@ export class AuthController {
   }
 
 
+  //  Forgot Password
+@Post('forgot-password')
+@HttpCode(HttpStatus.OK)
+forgotPassword(@Body('email') email: string) {
+  return this.authService.forgotPassword(email);
+}
+
+// Reset Password
+@Post('reset-password')
+@HttpCode(HttpStatus.OK)
+resetPassword(
+  @Body('token') token: string,
+  @Body('password') password: string,
+) {
+  return this.authService.resetPassword(token, password);
+}
 
   
 }
