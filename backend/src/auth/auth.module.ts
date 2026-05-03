@@ -8,9 +8,12 @@ import { AuthController } from './auth.controller';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { RolesGuard } from './guards/roles.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { PasswordResetToken } from './entity/password.reset.token.entity';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
   imports: [
+TypeOrmModule.forFeature([PasswordResetToken]),
     UsersModule,
     PassportModule,
     ConfigModule,
