@@ -133,7 +133,7 @@ export class AuthService {
       return { message: 'If account exists, reset link sent' };
     }
 
-    // old token invalidate
+    // old token invalidate TODO:enable must be 
     // await this.tokenRepo.update(
     //   { userId: user.id, used: false },
     //   { used: true },

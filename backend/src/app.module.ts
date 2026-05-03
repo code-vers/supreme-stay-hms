@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { User } from './users/entities/user.entity';
 import { Role } from './roles/entities/role.entity';
 import { Permission } from './permissions/entities/permission.entity';
+import { GlobalExceptionFilter } from './common/filters/http-exception.filter';
 
 @Module({
   imports: [
@@ -29,6 +30,9 @@ import { Permission } from './permissions/entities/permission.entity';
     AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService,  {
+      provide: 'APP_FILTER',
+      useClass: GlobalExceptionFilter,
+    },],
 })
 export class AppModule {}
