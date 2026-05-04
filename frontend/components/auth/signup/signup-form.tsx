@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 
 type Role = "GUEST_USER" | "PROPERTY_OWNER";
 
@@ -66,7 +67,7 @@ export default function SignupForm() {
     try {
       await userRegister(payload).unwrap();
 
-      alert("Registration successful! Please log in.");
+      toast("Registration successful! Please log in");
       setFormData({
         firstName: "",
         lastName: "",
@@ -77,7 +78,7 @@ export default function SignupForm() {
       });
       router.push("/login");
     } catch (err: unknown) {
-      alert(getErrorMessage(err));
+      toast.error(getErrorMessage(err));
     }
   };
 

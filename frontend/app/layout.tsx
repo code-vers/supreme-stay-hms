@@ -1,6 +1,7 @@
 import ReduxProvider from "@/providers/ReduxProvider";
 import { Geist, Geist_Mono, Spectral } from "next/font/google";
 import type { ReactNode } from "react";
+import { Toaster } from "sonner";
 import "./globals.css";
 
 const spectral = Spectral({
@@ -31,6 +32,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       className={`${spectral.variable} ${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       style={{ fontFamily: "var(--font-spectral)" }}>
       <body className='min-h-screen flex flex-col'>
+        <Toaster />
         <ReduxProvider>{children}</ReduxProvider>
       </body>
     </html>

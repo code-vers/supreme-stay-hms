@@ -1,11 +1,12 @@
 "use client";
 
+import { useUserLoginMutation } from "@/service/authantication/Auth";
+import { Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff } from "lucide-react";
-import { useUserLoginMutation } from "@/service/authantication/Auth";
+import { useState } from "react";
+import { toast } from "sonner";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -46,10 +47,11 @@ export default function LoginForm() {
         email: formData.email,
         password: formData.password,
       }).unwrap();
-      alert("Login successful!");
+
+      toast.success("Login successful!");
       router.push("/");
     } catch (error: unknown) {
-      alert(getErrorMessage(error));
+      toast.error(getErrorMessage(error));
     } finally {
       setIsLoading(false);
     }
