@@ -122,7 +122,6 @@
 // }
 
 import SignupPageContent from "@/components/auth/signup/signup-content";
-import React from "react";
 
 export default function RegisterPage() {
   return (

@@ -1,3 +1,4 @@
+import { userRegister } from "@/type/RegisterType";
 import { base_url } from "@/utils/utils";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
@@ -20,7 +21,7 @@ export const authApi = createApi({
   endpoints: (builder) => ({
     // ================= REGISTER =================
     userRegister: builder.mutation({
-      query: (data) => ({
+      query: (data: userRegister) => ({
         url: "/register",
         method: "POST",
         body: data,
@@ -52,23 +53,16 @@ export const authApi = createApi({
 
     // forget password
     forgetPassword: builder.mutation({
-      query: (email) => ({
-        url: "/password/forgot-password",
+      query: (email: string) => ({
+        url: "/forgot-password",
         method: "POST",
         body: { email },
       }),
     }),
 
-    otpVerify: builder.mutation({
-      query: (data) => ({
-        url: "/password/otp-verify",
-        method: "POST",
-        body: data,
-      }),
-    }),
     passwordReset: builder.mutation({
-      query: (data) => ({
-        url: "/password/reset",
+      query: (data: { token: string; password: string }) => ({
+        url: "/reset-password",
         method: "POST",
         body: data,
       }),
@@ -81,6 +75,5 @@ export const {
   useUserRegisterMutation,
   useUserLoginMutation,
   useForgetPasswordMutation,
-  useOtpVerifyMutation,
   usePasswordResetMutation,
 } = authApi;

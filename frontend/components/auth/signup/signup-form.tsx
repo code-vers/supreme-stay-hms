@@ -1,34 +1,93 @@
 "use client";
 
+import { useUserRegisterMutation } from "@/service/authantication/Auth";
+import { Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
-import { Eye, EyeOff } from "lucide-react";
+import { useState } from "react";
+
+type Role = "GUEST_USER" | "PROPERTY_OWNER";
 
 export default function SignupForm() {
   const router = useRouter();
+  const [role, setRole] = useState<Role>("GUEST_USER");
   const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
     email: "",
     password: "",
+    phoneNumber: "",
+    address: "",
   });
-  const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  const [userRegister, { isLoading, isError, error }] =
+    useUserRegisterMutation();
+
+  if (isError) {
+    console.log(error, "inspect the error!");
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
+  const getErrorMessage = (error: unknown) => {
+    const fallback = "Registration failed. Please try again.";
+    if (!error || typeof error !== "object") return fallback;
+
+    const err = error as {
+      data?: { message?: string | string[] };
+      message?: string;
+    };
+
+    if (Array.isArray(err.data?.message)) return err.data.message.join(", ");
+    if (typeof err.data?.message === "string") return err.data.message;
+    if (typeof err.message === "string") return err.message;
+
+    return fallback;
   };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const payload = {
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      email: formData.email,
+      password: formData.password,
+      role,
+      ...(formData.phoneNumber && { phoneNumber: formData.phoneNumber }),
+      ...(formData.address && { address: formData.address }),
+    };
+    console.log(payload, "this is payload after send to backend!");
+
+    try {
+      await userRegister(payload).unwrap();
+
+      alert("Registration successful! Please log in.");
+      setFormData({
+        firstName: "",
+        lastName: "",
+        email: "",
+        password: "",
+        phoneNumber: "",
+        address: "",
+      });
+      router.push("/login");
+    } catch (err: unknown) {
+      alert(getErrorMessage(err));
+    }
+  };
+
+  const inputClass =
+    "w-full px-3 py-2.5 sm:py-3 border border-[#E7E5E4] rounded-md text-base text-gray-600 placeholder-[#979191] focus:outline-none focus:ring-1 focus:ring-[#1e2d4a] focus:border-[#1e2d4a] transition-colors";
 
   return (
     <section className='bg-(--text-secondary) py-8 px-4 sm:px-6 flex flex-col rounded-[10px]'>
-      {/* Logo at the top center - Clickable */}
-      <div className='flex justify-center '>
+      {/* Logo */}
+      <div className='flex justify-center'>
         <Link href='/' className='inline-block'>
           <Image
             src='/logo1.png'
@@ -52,8 +111,59 @@ export default function SignupForm() {
             <p>Welcome to Elach</p>
           </div>
 
-          {/* Form Fields */}
-          <form onSubmit={handleSubmit} className='space-y-3 '>
+          {/* Role Tabs */}
+          <div className='flex rounded-md overflow-hidden border border-[#E7E5E4] mb-5'>
+            {(["GUEST_USER", "PROPERTY_OWNER"] as Role[]).map((r) => (
+              <button
+                key={r}
+                type='button'
+                onClick={() => setRole(r)}
+                className='flex-1 py-2.5 text-sm font-semibold transition-all duration-150 focus:outline-none'
+                style={{
+                  background: role === r ? "var(--text-brand)" : "transparent",
+                  color: role === r ? "#ffffff" : "#979191",
+                  borderRight:
+                    r === "GUEST_USER" ? "1px solid #E7E5E4" : "none",
+                }}>
+                {r === "GUEST_USER" ? "Guest User" : "Property Owner"}
+              </button>
+            ))}
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className='space-y-3'>
+            {/* First & Last Name */}
+            <div className='flex gap-3'>
+              <div className='flex-1'>
+                <label className='block text-base text-(--text-primary) mb-1.5'>
+                  First Name
+                </label>
+                <input
+                  type='text'
+                  name='firstName'
+                  required
+                  value={formData.firstName}
+                  onChange={handleChange}
+                  placeholder='First name'
+                  className={inputClass}
+                />
+              </div>
+              <div className='flex-1'>
+                <label className='block text-base text-(--text-primary) mb-1.5'>
+                  Last Name
+                </label>
+                <input
+                  type='text'
+                  name='lastName'
+                  required
+                  value={formData.lastName}
+                  onChange={handleChange}
+                  placeholder='Last name'
+                  className={inputClass}
+                />
+              </div>
+            </div>
+
             {/* Email */}
             <div>
               <label className='block text-base text-(--text-primary) mb-1.5'>
@@ -66,31 +176,25 @@ export default function SignupForm() {
                 value={formData.email}
                 onChange={handleChange}
                 placeholder='user@gmail.com'
-                className='w-full px-3 py-2.5 sm:py-3 border border-[#E7E5E4] rounded-md text-base text-gray-600 placeholder-[#979191] focus:outline-none focus:ring-1 focus:ring-[#1e2d4a] focus:border-[#1e2d4a] transition-colors'
+                className={inputClass}
               />
             </div>
 
             {/* Password */}
             <div>
-              <div className='flex justify-between'>
-                <label className='block text-base text-(--text-primary) mb-1.5'>
-                  Password
-                </label>
-                <Link
-                  href='/forgot-password'
-                  className='text-base text-[#262626] underline'>
-                  Forgot your password?
-                </Link>
-              </div>
+              <label className='block text-base text-(--text-primary) mb-1.5'>
+                Password
+              </label>
               <div className='relative'>
                 <input
                   type={showPassword ? "text" : "password"}
                   name='password'
                   required
+                  minLength={6}
                   value={formData.password}
                   onChange={handleChange}
                   placeholder='Enter your password'
-                  className='w-full px-3 py-2.5 sm:py-3 border border-[#E7E5E4] rounded-md text-base text-gray-600 placeholder-[#979191] focus:outline-none focus:ring-1 focus:ring-[#1e2d4a] focus:border-[#1e2d4a] transition-colors'
+                  className={inputClass}
                 />
                 <button
                   type='button'
@@ -102,7 +206,37 @@ export default function SignupForm() {
               </div>
             </div>
 
-            {/* Sign Up Button */}
+            {/* Phone */}
+            <div>
+              <label className='block text-base text-(--text-primary) mb-1.5'>
+                Phone Number
+              </label>
+              <input
+                type='tel'
+                name='phoneNumber'
+                value={formData.phoneNumber}
+                onChange={handleChange}
+                placeholder='+880 1XXX-XXXXXX'
+                className={inputClass}
+              />
+            </div>
+
+            {/* Address */}
+            <div>
+              <label className='block text-base text-(--text-primary) mb-1.5'>
+                Address
+              </label>
+              <input
+                type='text'
+                name='address'
+                value={formData.address}
+                onChange={handleChange}
+                placeholder='123 Main St, Dhaka'
+                className={inputClass}
+              />
+            </div>
+
+            {/* Submit */}
             <button
               type='submit'
               disabled={isLoading}
