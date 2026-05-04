@@ -33,4 +33,9 @@ export class UsersService {
   async findOneByRefreshToken(refreshToken: string): Promise<User | null> {
     return this.usersRepository.findOne({ where: { refreshToken } });
   }
+
+    async update(userId: string, data: Partial<User>): Promise<User | null> {
+    await this.usersRepository.update(userId, data);
+    return this.findOneById(userId);
+  }
 }

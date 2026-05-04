@@ -8,12 +8,17 @@ import { AuthController } from './auth.controller';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { RolesGuard } from './guards/roles.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { PasswordResetToken } from './entity/password.reset.token.entity';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { MailModule } from 'src/common/mail/mail.module';
 
 @Module({
   imports: [
+TypeOrmModule.forFeature([PasswordResetToken]),
     UsersModule,
     PassportModule,
     ConfigModule,
+    MailModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
