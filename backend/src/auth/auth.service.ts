@@ -1,21 +1,21 @@
 import {
+  BadRequestException,
+  ConflictException,
   Injectable,
   UnauthorizedException,
-  ConflictException,
-  BadRequestException,
 } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { UsersService } from '../users/users.service';
+import { JwtService } from '@nestjs/jwt';
+import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
-import { RegisterDto } from './dto/register.dto';
-import { LoginDto } from './dto/login.dto';
-import { User } from '../users/entities/user.entity';
-import { PasswordResetToken } from './entity/password.reset.token.entity';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, LessThan } from 'typeorm';
 import { MailService } from 'src/common/mail/mail.service';
+import { LessThan, Repository } from 'typeorm';
+import { User } from '../users/entities/user.entity';
+import { UsersService } from '../users/users.service';
+import { LoginDto } from './dto/login.dto';
+import { RegisterDto } from './dto/register.dto';
+import { PasswordResetToken } from './entity/password.reset.token.entity';
 
 @Injectable()
 export class AuthService {
@@ -23,9 +23,8 @@ export class AuthService {
     private usersService: UsersService,
     private jwtService: JwtService,
     private config: ConfigService,
-    private mailService : MailService,
+    private mailService: MailService,
 
-  
     @InjectRepository(PasswordResetToken)
     private tokenRepo: Repository<PasswordResetToken>,
   ) {}
@@ -123,7 +122,6 @@ export class AuthService {
     return { access_token, refresh_token };
   }
 
-  
   //  FORGOT PASSWORD
 
   async forgotPassword(email: string) {
@@ -133,7 +131,7 @@ export class AuthService {
       return { message: 'If account exists, reset link sent' };
     }
 
-    // old token invalidate TODO:enable must be 
+    // old token invalidate TODO:enable must be
     // await this.tokenRepo.update(
     //   { userId: user.id, used: false },
     //   { used: true },
@@ -159,22 +157,15 @@ export class AuthService {
 
     const resetLink = `http://localhost:3000/reset-password?token=${rawToken}`;
 
-  await this.mailService.sendResetPasswordEmail(
-  user.email,
-  resetLink,
-);
+    await this.mailService.sendResetPasswordEmail(user.email, resetLink);
 
     return { message: 'If account exists, reset link sent' };
   }
 
-
   //  RESET PASSWORD
 
   async resetPassword(token: string, password: string) {
-    const hashedToken = crypto
-      .createHash('sha256')
-      .update(token)
-      .digest('hex');
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
 
     const tokenEntry = await this.tokenRepo.findOne({
       where: {
@@ -205,13 +196,11 @@ export class AuthService {
     return { message: 'Password reset successful' };
   }
 
-
   // MAIL (TEMP)
 
-  private async sendMail(email: string, resetLink: string) {
-    console.log(`Send mail to ${email}: ${resetLink}`);
-  }
-
+  // private async sendMail(email: string, resetLink: string) {
+  //   console.log(`Send mail to ${email}: ${resetLink}`);
+  // }
 
   //  CLEANUP
 

@@ -1,6 +1,7 @@
+import ReduxProvider from "@/providers/ReduxProvider";
 import { Geist, Geist_Mono, Spectral } from "next/font/google";
-import "./globals.css";
 import type { ReactNode } from "react";
+import "./globals.css";
 
 const spectral = Spectral({
   variable: "--font-spectral",
@@ -29,7 +30,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       lang='en'
       className={`${spectral.variable} ${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       style={{ fontFamily: "var(--font-spectral)" }}>
-      <body className='min-h-screen flex flex-col'>{children}</body>
+      <body className='min-h-screen flex flex-col'>
+        <ReduxProvider>{children}</ReduxProvider>
+      </body>
     </html>
   );
 }
