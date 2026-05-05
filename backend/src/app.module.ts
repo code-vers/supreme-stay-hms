@@ -9,7 +9,6 @@ import { User } from './users/entities/user.entity';
 import { Role } from './roles/entities/role.entity';
 import { Permission } from './permissions/entities/permission.entity';
 import { GlobalExceptionFilter } from './common/filters/http-exception.filter';
-import { HotelsModule } from './src/hotels/hotels.module';
 import { HotelsModule } from './hotels/hotels.module';
 
 @Module({
