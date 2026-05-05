@@ -1,11 +1,20 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CreateHotelDto } from './dto/create-hotel.dto';
 import { UpdateHotelDto } from './dto/update-hotel.dto';
+import { Hotel } from './entities/hotel.entity';
 
 @Injectable()
 export class HotelsService {
+  constructor(
+    @InjectRepository(Hotel)
+    private hotelRepo: Repository<Hotel>,
+  ) {}
+
   create(createHotelDto: CreateHotelDto) {
-    return 'This action adds a new hotel';
+    const saved = this.hotelRepo.save(createHotelDto);
+    return saved;
   }
 
   findAll() {

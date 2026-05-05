@@ -9,8 +9,8 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
-import { MailService } from 'src/common/mail/mail.service';
 import { UserRole } from 'src/common/enum/user.role.enun';
+import { MailService } from 'src/common/mail/mail.service';
 import { Role } from 'src/roles/entities/role.entity';
 import { LessThan, Repository } from 'typeorm';
 import { User } from '../users/entities/user.entity';
@@ -35,8 +35,16 @@ export class AuthService {
 
   // Registration
   async register(registerDto: RegisterDto) {
-    const { email, password, firstName, lastName, role, phoneNumber, address, imageUrl } =
-      registerDto;
+    const {
+      email,
+      password,
+      firstName,
+      lastName,
+      role,
+      phoneNumber,
+      address,
+      imageUrl,
+    } = registerDto;
 
     const existing = await this.usersService.findOneByEmail(email);
     if (existing) throw new ConflictException('User already exists');
