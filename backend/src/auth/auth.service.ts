@@ -10,6 +10,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import { MailService } from 'src/common/mail/mail.service';
+import { UserRole } from 'src/common/enum/user.role.enun';
+import { Role } from 'src/roles/entities/role.entity';
 import { LessThan, Repository } from 'typeorm';
 import { User } from '../users/entities/user.entity';
 import { UsersService } from '../users/users.service';
@@ -27,14 +29,29 @@ export class AuthService {
 
     @InjectRepository(PasswordResetToken)
     private tokenRepo: Repository<PasswordResetToken>,
+    @InjectRepository(Role)
+    private rolesRepo: Repository<Role>,
   ) {}
 
   // Registration
   async register(registerDto: RegisterDto) {
-    const { email, password, firstName, lastName } = registerDto;
+    const { email, password, firstName, lastName, role, phoneNumber, address, imageUrl } =
+      registerDto;
 
     const existing = await this.usersService.findOneByEmail(email);
     if (existing) throw new ConflictException('User already exists');
+
+    const isUuid =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+        role,
+      );
+
+    const selectedRole = await this.rolesRepo.findOne({
+      where: isUuid ? { id: role } : { name: role as UserRole },
+    });
+    if (!selectedRole) {
+      throw new BadRequestException('Invalid role');
+    }
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await this.usersService.create({
@@ -42,6 +59,10 @@ export class AuthService {
       password: hashedPassword,
       firstName,
       lastName,
+      role: selectedRole,
+      phoneNumber,
+      address,
+      imageUrl,
     });
 
     return { message: 'User registered successfully', userId: user.id };
@@ -106,7 +127,13 @@ export class AuthService {
 
   // Token generator
   private async generateTokens(user: User) {
-    const payload = { sub: user.id, email: user.email, role: user.role };
+    const payload = {
+      sub: user.id,
+      email: user.email,
+      roleId: user.role?.id ?? null,
+      roleName: user.role?.name ?? null,
+      role: user.role?.name ?? null, // backward compatibility
+    };
 
     const [access_token, refresh_token] = await Promise.all([
       this.jwtService.signAsync(payload, {
@@ -120,6 +147,13 @@ export class AuthService {
     ]);
 
     return { access_token, refresh_token };
+  }
+
+  //get public role
+
+  async getUserRole() {
+    const roles = await this.rolesRepo.find();
+    return roles;
   }
 
   //  FORGOT PASSWORD

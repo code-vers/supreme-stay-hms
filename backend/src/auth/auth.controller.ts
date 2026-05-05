@@ -54,6 +54,13 @@ export class AuthController {
     return this.authService.getProfile((req.user?.userId ?? '') as string);
   }
 
+  //get user role
+
+  @Get('roles')
+  getUserRoles() {
+    return this.authService.getUserRole();
+  }
+
   //  FORGOT PASSWORD
   @Post('forgot-password')
   @HttpCode(HttpStatus.OK)

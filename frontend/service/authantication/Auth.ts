@@ -67,6 +67,10 @@ export const authApi = createApi({
         body: data,
       }),
     }),
+
+    getRoles: builder.query({
+      query: () => "/roles",
+    }),
   }),
 });
 
@@ -76,4 +80,5 @@ export const {
   useUserLoginMutation,
   useForgetPasswordMutation,
   usePasswordResetMutation,
+  useGetRolesQuery,
 } = authApi;

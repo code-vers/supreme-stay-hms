@@ -1,18 +1,19 @@
 "use client";
 
-import { useUserRegisterMutation } from "@/service/authantication/Auth";
+import {
+  useGetRolesQuery,
+  useUserRegisterMutation,
+} from "@/service/authantication/Auth";
 import { Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
-
-type Role = "GUEST_USER" | "PROPERTY_OWNER";
 
 export default function SignupForm() {
   const router = useRouter();
-  const [role, setRole] = useState<Role>("GUEST_USER");
+
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -21,13 +22,26 @@ export default function SignupForm() {
     phoneNumber: "",
     address: "",
   });
+
+  const [role, setRole] = useState<string>(""); // ✅ role NAME
   const [showPassword, setShowPassword] = useState(false);
 
   const [userRegister, { isLoading, isError, error }] =
     useUserRegisterMutation();
 
+  const { data } = useGetRolesQuery(undefined);
+  const roles = data?.data || [];
+
+  // ✅ Default role set (GUEST_USER)
+  useEffect(() => {
+    if (roles.length > 0) {
+      const defaultRole = roles.find((r: any) => r.name === "GUEST_USER");
+      setRole(defaultRole?.name || roles[0].name);
+    }
+  }, [data]);
+
   if (isError) {
-    console.log(error, "inspect the error!");
+    console.log(error, "registration error");
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -58,16 +72,16 @@ export default function SignupForm() {
       lastName: formData.lastName,
       email: formData.email,
       password: formData.password,
-      role,
+      role, // ✅ ROLE NAME যাচ্ছে
       ...(formData.phoneNumber && { phoneNumber: formData.phoneNumber }),
       ...(formData.address && { address: formData.address }),
     };
-    console.log(payload, "this is payload after send to backend!");
 
     try {
       await userRegister(payload).unwrap();
 
-      toast("Registration successful! Please log in");
+      toast.success("Registration successful! Please log in");
+
       setFormData({
         firstName: "",
         lastName: "",
@@ -76,6 +90,7 @@ export default function SignupForm() {
         phoneNumber: "",
         address: "",
       });
+
       router.push("/login");
     } catch (err: unknown) {
       toast.error(getErrorMessage(err));
@@ -101,7 +116,7 @@ export default function SignupForm() {
         </Link>
       </div>
 
-      {/* Main Content */}
+      {/* Main */}
       <div className='flex-1 flex items-center justify-center'>
         <div className='w-full max-w-md sm:max-w-lg md:min-w-125 mx-auto'>
           {/* Header */}
@@ -112,146 +127,114 @@ export default function SignupForm() {
             <p>Welcome to Elach</p>
           </div>
 
-          {/* Role Tabs */}
+          {/* Roles */}
           <div className='flex rounded-md overflow-hidden border border-[#E7E5E4] mb-5'>
-            {(["GUEST_USER", "PROPERTY_OWNER"] as Role[]).map((r) => (
+            {roles.map((r: any, index: number) => (
               <button
-                key={r}
+                key={r.id}
                 type='button'
-                onClick={() => setRole(r)}
+                onClick={() => setRole(r.name)}
                 className='flex-1 py-2.5 text-sm font-semibold transition-all duration-150 focus:outline-none'
                 style={{
-                  background: role === r ? "var(--text-brand)" : "transparent",
-                  color: role === r ? "#ffffff" : "#979191",
+                  background:
+                    role === r.name ? "var(--text-brand)" : "transparent",
+                  color: role === r.name ? "#fff" : "#979191",
                   borderRight:
-                    r === "GUEST_USER" ? "1px solid #E7E5E4" : "none",
+                    index !== roles.length - 1 ? "1px solid #E7E5E4" : "none",
                 }}>
-                {r === "GUEST_USER" ? "Guest User" : "Property Owner"}
+                {r.name === "GUEST_USER" ? "Guest User" : "Property Owner"}
               </button>
             ))}
           </div>
 
           {/* Form */}
           <form onSubmit={handleSubmit} className='space-y-3'>
-            {/* First & Last Name */}
+            {/* Name */}
             <div className='flex gap-3'>
-              <div className='flex-1'>
-                <label className='block text-base text-(--text-primary) mb-1.5'>
-                  First Name
-                </label>
-                <input
-                  type='text'
-                  name='firstName'
-                  required
-                  value={formData.firstName}
-                  onChange={handleChange}
-                  placeholder='First name'
-                  className={inputClass}
-                />
-              </div>
-              <div className='flex-1'>
-                <label className='block text-base text-(--text-primary) mb-1.5'>
-                  Last Name
-                </label>
-                <input
-                  type='text'
-                  name='lastName'
-                  required
-                  value={formData.lastName}
-                  onChange={handleChange}
-                  placeholder='Last name'
-                  className={inputClass}
-                />
-              </div>
+              <input
+                type='text'
+                name='firstName'
+                required
+                value={formData.firstName}
+                onChange={handleChange}
+                placeholder='First name'
+                className={inputClass}
+              />
+              <input
+                type='text'
+                name='lastName'
+                required
+                value={formData.lastName}
+                onChange={handleChange}
+                placeholder='Last name'
+                className={inputClass}
+              />
             </div>
 
             {/* Email */}
-            <div>
-              <label className='block text-base text-(--text-primary) mb-1.5'>
-                Email
-              </label>
-              <input
-                type='email'
-                name='email'
-                required
-                value={formData.email}
-                onChange={handleChange}
-                placeholder='user@gmail.com'
-                className={inputClass}
-              />
-            </div>
+            <input
+              type='email'
+              name='email'
+              required
+              value={formData.email}
+              onChange={handleChange}
+              placeholder='user@gmail.com'
+              className={inputClass}
+            />
 
             {/* Password */}
-            <div>
-              <label className='block text-base text-(--text-primary) mb-1.5'>
-                Password
-              </label>
-              <div className='relative'>
-                <input
-                  type={showPassword ? "text" : "password"}
-                  name='password'
-                  required
-                  minLength={6}
-                  value={formData.password}
-                  onChange={handleChange}
-                  placeholder='Enter your password'
-                  className={inputClass}
-                />
-                <button
-                  type='button'
-                  onClick={() => setShowPassword((s) => !s)}
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                  className='absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700'>
-                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                </button>
-              </div>
+            <div className='relative'>
+              <input
+                type={showPassword ? "text" : "password"}
+                name='password'
+                required
+                minLength={6}
+                value={formData.password}
+                onChange={handleChange}
+                placeholder='Enter your password'
+                className={inputClass}
+              />
+              <button
+                type='button'
+                onClick={() => setShowPassword((s) => !s)}
+                className='absolute right-2 top-1/2 -translate-y-1/2'>
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
             </div>
 
             {/* Phone */}
-            <div>
-              <label className='block text-base text-(--text-primary) mb-1.5'>
-                Phone Number
-              </label>
-              <input
-                type='tel'
-                name='phoneNumber'
-                value={formData.phoneNumber}
-                onChange={handleChange}
-                placeholder='+880 1XXX-XXXXXX'
-                className={inputClass}
-              />
-            </div>
+            <input
+              type='tel'
+              name='phoneNumber'
+              value={formData.phoneNumber}
+              onChange={handleChange}
+              placeholder='+880 1XXX-XXXXXX'
+              className={inputClass}
+            />
 
             {/* Address */}
-            <div>
-              <label className='block text-base text-(--text-primary) mb-1.5'>
-                Address
-              </label>
-              <input
-                type='text'
-                name='address'
-                value={formData.address}
-                onChange={handleChange}
-                placeholder='123 Main St, Dhaka'
-                className={inputClass}
-              />
-            </div>
+            <input
+              type='text'
+              name='address'
+              value={formData.address}
+              onChange={handleChange}
+              placeholder='123 Main St, Dhaka'
+              className={inputClass}
+            />
 
             {/* Submit */}
             <button
               type='submit'
               disabled={isLoading}
-              className='w-full mt-7 sm:mt-8 py-3.5 sm:py-4 bg-(--text-brand) text-white font-semibold rounded-full hover:bg-[#200808] active:scale-[0.98] transition-all duration-150 text-base disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer'>
+              className='w-full mt-7 py-3.5 bg-(--text-brand) text-white font-semibold rounded-full disabled:opacity-50'>
               {isLoading ? "Signing up..." : "Sign Up"}
             </button>
           </form>
 
-          {/* Sign In Link */}
-          <p className='text-center text-base text-[#262626] mt-5 sm:mt-6'>
+          {/* Login */}
+          <p className='text-center mt-5'>
             Already have an account?{" "}
-            <Link
-              href='/login'
-              className='text-[#262626] font-medium underline'>
+            <Link href='/login' className='underline'>
               Sign In
             </Link>
           </p>
