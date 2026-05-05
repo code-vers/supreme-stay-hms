@@ -5,9 +5,9 @@ import {
   HttpCode,
   HttpStatus,
   Post,
-  Req,
   UseGuards,
 } from '@nestjs/common';
+import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { AuthService } from './auth.service';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { LoginDto } from './dto/login.dto';
@@ -43,15 +43,15 @@ export class AuthController {
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
-  logout(@Req() req: any) {
-    return this.authService.logout((req.user?.userId ?? '') as string);
+  logout(@CurrentUser('userId') userId: string) {
+    return this.authService.logout(userId ?? '');
   }
 
   // Get profile endpoint - returns user profile, protected by JWT auth guard
   @Get('me')
   @UseGuards(JwtAuthGuard)
-  getProfile(@Req() req: any) {
-    return this.authService.getProfile((req.user?.userId ?? '') as string);
+  getProfile(@CurrentUser('userId') userId: string) {
+    return this.authService.getProfile(userId ?? '');
   }
 
   //get user role
