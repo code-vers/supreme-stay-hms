@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { UserStatus } from 'src/common/enum/user.status.enum';
+import { UserRole } from 'src/common/enum/user.role.enun';
 import { User } from './entities/user.entity';
 
 @Injectable()
@@ -32,6 +34,20 @@ export class UsersService {
 
   async findOneByRefreshToken(refreshToken: string): Promise<User | null> {
     return this.usersRepository.findOne({ where: { refreshToken } });
+  }
+
+  async findPendingOwners(): Promise<User[]> {
+    return this.usersRepository.find({
+      where: { status: UserStatus.PENDING },
+      relations: ['role'],
+    });
+  }
+
+  async findUsersByRole(roleName: UserRole): Promise<User[]> {
+    return this.usersRepository.find({
+      where: { role: { name: roleName } },
+      relations: ['role'],
+    });
   }
 
   async update(userId: string, data: Partial<User>): Promise<User | null> {

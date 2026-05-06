@@ -40,10 +40,16 @@ export const authApi = createApi({
         try {
           const result = await queryFulfilled;
 
-          const token = result.data?.data?.access_token;
+          const token = result.data?.access_token;
+          const user = result.data?.user;
 
           if (token) {
             setTokenCookie(token); //  store token in cookie
+            localStorage.setItem("access_token", token);
+          }
+
+          if (user) {
+            localStorage.setItem("user", JSON.stringify(user));
           }
         } catch (error) {
           console.log("Login failed:", error);

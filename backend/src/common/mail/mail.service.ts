@@ -7,20 +7,37 @@ export class MailService {
   private transporter: nodemailer.Transporter;
 
   constructor(private config: ConfigService) {
+    const host =
+      this.config.get<string>('EMAIL_HOST') ??
+      this.config.get<string>('MAIL_HOST');
+    const port = Number(
+      this.config.get<string>('EMAIL_PORT') ??
+        this.config.get<string>('MAIL_PORT') ??
+        587,
+    );
+    const user =
+      this.config.get<string>('EMAIL_USER') ??
+      this.config.get<string>('MAIL_USER');
+    const pass =
+      this.config.get<string>('EMAIL_PASSWORD') ??
+      this.config.get<string>('MAIL_PASS');
+
     this.transporter = nodemailer.createTransport({
-      host: this.config.get<string>('MAIL_HOST'),
-      port: this.config.get<number>('MAIL_PORT'),
+      host,
+      port,
       secure: false,
       auth: {
-        user: this.config.get<string>('MAIL_USER'),
-        pass: this.config.get<string>('MAIL_PASS'),
+        user,
+        pass,
       },
     });
   }
 
   async sendResetPasswordEmail(email: string, resetLink: string) {
     const mailOptions = {
-      from: this.config.get<string>('MAIL_FROM'),
+      from:
+        this.config.get<string>('EMAIL_FROM') ??
+        this.config.get<string>('MAIL_FROM'),
       to: email,
       subject: 'Reset Your Password',
       html: this.getResetTemplate(resetLink),
@@ -29,7 +46,20 @@ export class MailService {
     await this.transporter.sendMail(mailOptions);
   }
 
-  // 🔥 Professional HTML template
+  async sendMail(to: string | string[], subject: string, html: string) {
+    const mailOptions = {
+      from:
+        this.config.get<string>('EMAIL_FROM') ??
+        this.config.get<string>('MAIL_FROM'),
+      to,
+      subject,
+      html,
+    };
+
+    await this.transporter.sendMail(mailOptions);
+  }
+
+  // Professional HTML template
   private getResetTemplate(resetLink: string): string {
     return `
       <div style="font-family: Arial, sans-serif; padding: 20px;">

@@ -49,7 +49,7 @@ export default function LoginForm() {
       }).unwrap();
 
       toast.success("Login successful!");
-      router.push("/");
+      router.push("/dashboard");
     } catch (error: unknown) {
       toast.error(getErrorMessage(error));
     } finally {

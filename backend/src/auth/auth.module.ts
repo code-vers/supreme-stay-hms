@@ -4,6 +4,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MailModule } from 'src/common/mail/mail.module';
+import { CloudinaryService } from 'src/common/cloudinary/cloudinary.service';
 import { Role } from 'src/roles/entities/role.entity';
 import { UsersModule } from '../users/users.module';
 import { AuthController } from './auth.controller';
@@ -29,7 +30,13 @@ import { JwtStrategy } from './strategies/jwt.strategy';
       }),
     }),
   ],
-  providers: [AuthService, JwtStrategy, JwtAuthGuard, RolesGuard],
+  providers: [
+    AuthService,
+    JwtStrategy,
+    JwtAuthGuard,
+    RolesGuard,
+    CloudinaryService,
+  ],
   controllers: [AuthController],
   exports: [RolesGuard, JwtAuthGuard],
 })

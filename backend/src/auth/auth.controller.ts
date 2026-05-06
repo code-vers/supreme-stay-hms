@@ -5,8 +5,12 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  UploadedFiles,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import * as multer from 'multer';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { AuthService } from './auth.service';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
@@ -23,6 +27,20 @@ export class AuthController {
   @Post('register')
   register(@Body() dto: RegisterDto) {
     return this.authService.register(dto);
+  }
+
+  @Post('register-owner')
+  @UseInterceptors(
+    FileFieldsInterceptor([{ name: 'documents', maxCount: 5 }], {
+      storage: multer.memoryStorage(),
+    }),
+  )
+  registerOwner(
+    @Body() body: any,
+    @UploadedFiles() files: { documents?: any[] },
+  ) {
+    const docs = files?.documents || [];
+    return this.authService.registerPropertyOwner(body, docs);
   }
 
   // Login endpoint - accepts email and password, returns access and refresh tokens

@@ -9,9 +9,11 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
+import { UserStatus } from 'src/common/enum/user.status.enum';
 import { UserRole } from 'src/common/enum/user.role.enun';
 import { MailService } from 'src/common/mail/mail.service';
 import { Role } from 'src/roles/entities/role.entity';
+import { CloudinaryService } from 'src/common/cloudinary/cloudinary.service';
 import { LessThan, Repository } from 'typeorm';
 import { User } from '../users/entities/user.entity';
 import { UsersService } from '../users/users.service';
@@ -27,11 +29,135 @@ export class AuthService {
     private config: ConfigService,
     private mailService: MailService,
 
+    private cloudinaryService: CloudinaryService,
+
     @InjectRepository(PasswordResetToken)
     private tokenRepo: Repository<PasswordResetToken>,
     @InjectRepository(Role)
     private rolesRepo: Repository<Role>,
   ) {}
+
+  private getStringField(value: unknown): string {
+    return typeof value === 'string' ? value : '';
+  }
+
+  // Register property owner (multipart files handled in controller)
+  async registerPropertyOwner(
+    data: {
+      email?: unknown;
+      password?: unknown;
+      firstName?: unknown;
+      lastName?: unknown;
+      phoneNumber?: unknown;
+      address?: unknown;
+      role?: unknown;
+      nidNumber?: unknown;
+      nidName?: unknown;
+      dob?: unknown;
+      presentAddress?: unknown;
+      permanentAddress?: unknown;
+      profession?: unknown;
+      companyName?: unknown;
+    },
+    files: Array<{
+      buffer: Buffer;
+      originalname: string;
+      mimetype: string;
+    }>,
+  ) {
+    const email = this.getStringField(data.email);
+    const password = this.getStringField(data.password);
+    const firstName = this.getStringField(data.firstName);
+    const lastName = this.getStringField(data.lastName);
+    const phoneNumber = this.getStringField(data.phoneNumber);
+    const address = this.getStringField(data.address);
+    const role = this.getStringField(data.role);
+    const nidNumber = this.getStringField(data.nidNumber ?? data.nidName);
+    const dob = this.getStringField(data.dob);
+    const presentAddress = this.getStringField(data.presentAddress);
+    const permanentAddress = this.getStringField(data.permanentAddress);
+    const profession = this.getStringField(data.profession);
+    const companyName = this.getStringField(data.companyName);
+
+    if (!email || !password || !firstName || !lastName || !role) {
+      throw new BadRequestException('Missing required registration fields');
+    }
+
+    const existing = await this.usersService.findOneByEmail(email);
+    if (existing) throw new ConflictException('User already exists');
+
+    const isUuid =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+        role,
+      );
+
+    const selectedRole = await this.rolesRepo.findOne({
+      where: isUuid ? { id: role } : { name: role as UserRole },
+    });
+    if (!selectedRole) throw new BadRequestException('Invalid role');
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const uploadedDocs: { url: string; name?: string; type?: string }[] = [];
+    if (files && files.length > 0) {
+      for (const f of files) {
+        const res = await this.cloudinaryService.uploadBuffer(f.buffer);
+        uploadedDocs.push({
+          url: res.url,
+          name: f.originalname,
+          type: f.mimetype,
+        });
+      }
+    }
+
+    const user = await this.usersService.create({
+      email,
+      password: hashedPassword,
+      firstName,
+      lastName,
+      role: selectedRole,
+      phoneNumber,
+      address,
+      nidNumber,
+      dob: dob ? new Date(dob) : undefined,
+      presentAddress,
+      permanentAddress,
+      profession,
+      companyName,
+      documents: uploadedDocs,
+      status: UserStatus.PENDING,
+    });
+
+    const superAdmins = await this.usersService.findUsersByRole(
+      UserRole.SUPER_ADMIN,
+    );
+    const adminEmails: string[] = [];
+    for (const admin of superAdmins as Array<{ email?: unknown }>) {
+      const adminEmail = this.getStringField(admin.email);
+      if (adminEmail) {
+        adminEmails.push(adminEmail);
+      }
+    }
+
+    const adminHtml = `<p>New property owner registration request from ${user.email}.</p>`;
+    const ownerHtml = `<p>Your property owner request has been submitted successfully. Our team will review it and notify you once it has been approved.</p>`;
+
+    if (adminEmails.length > 0) {
+      await this.mailService.sendMail(
+        adminEmails,
+        'New Property Owner Request',
+        adminHtml,
+      );
+    }
+
+    await this.mailService.sendMail(
+      user.email,
+      'Property Owner Request Submitted',
+      ownerHtml,
+    );
+
+    return { message: 'Property owner registration submitted for review' };
+  }
 
   // Registration
   async register(registerDto: RegisterDto) {
@@ -83,6 +209,21 @@ export class AuthService {
 
     if (!user || !(await bcrypt.compare(password, user.password))) {
       throw new UnauthorizedException('Invalid credentials');
+    }
+
+    // If property owner, ensure approved
+    const roleName = user.role?.name;
+    if (roleName === UserRole.PROPERTY_OWNER) {
+      if (user.status === UserStatus.PENDING) {
+        throw new UnauthorizedException(
+          'Your account is under review. You will be notified once approved.',
+        );
+      }
+      if (user.status === UserStatus.REJECTED) {
+        throw new UnauthorizedException(
+          `Your registration was rejected. Reason: ${user.rejectionReason || 'No reason provided'}`,
+        );
+      }
     }
 
     const tokens = await this.generateTokens(user);

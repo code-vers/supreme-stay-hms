@@ -1,21 +1,23 @@
 "use client";
 
-import {
-  useGetRolesQuery,
-  useUserRegisterMutation,
-} from "@/service/authantication/Auth";
+import { useUserRegisterMutation } from "@/service/authantication/Auth";
 import { userRegister as UserRegisterPayload } from "@/type/RegisterType";
 import { Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 
 type UserRole = UserRegisterPayload["role"];
 
 const isUserRole = (value: string): value is UserRole =>
   value === "GUEST_USER" || value === "PROPERTY_OWNER";
+
+const signupRoles: Array<{ name: UserRole; label: string }> = [
+  { name: "GUEST_USER", label: "Guest User" },
+  { name: "PROPERTY_OWNER", label: "Property Owner" },
+];
 
 export default function SignupForm() {
   const router = useRouter();
@@ -29,25 +31,22 @@ export default function SignupForm() {
     address: "",
   });
 
+  const [step, setStep] = useState(1);
+  const [ownerExtra, setOwnerExtra] = useState({
+    nidNumber: "",
+    dob: "",
+    presentAddress: "",
+    permanentAddress: "",
+    profession: "",
+    companyName: "",
+  });
+  const [documents, setDocuments] = useState<File[]>([]);
+
   const [role, setRole] = useState<UserRole>("GUEST_USER");
   const [showPassword, setShowPassword] = useState(false);
 
   const [userRegister, { isLoading, isError, error }] =
     useUserRegisterMutation();
-
-  const { data } = useGetRolesQuery(undefined);
-  const roles = data?.data || [];
-
-  // ✅ Default role set (GUEST_USER)
-  useEffect(() => {
-    if (roles.length > 0) {
-      const defaultRole = roles.find((r: any) => r.name === "GUEST_USER");
-      const resolvedRole = defaultRole?.name || roles[0].name;
-      if (isUserRole(resolvedRole)) {
-        setRole(resolvedRole);
-      }
-    }
-  }, [data]);
 
   if (isError) {
     console.log(error, "registration error");
@@ -76,6 +75,58 @@ export default function SignupForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // If property owner selected, run multi-step flow
+    if (role === "PROPERTY_OWNER") {
+      if (step === 1) {
+        setStep(2);
+        return;
+      }
+
+      if (step === 2) {
+        setStep(3);
+        return;
+      }
+
+      // step 3 -> final submit
+
+      const form = new FormData();
+      form.append("firstName", formData.firstName);
+      form.append("lastName", formData.lastName);
+      form.append("email", formData.email);
+      form.append("password", formData.password);
+      form.append("role", role);
+      if (formData.phoneNumber)
+        form.append("phoneNumber", formData.phoneNumber);
+      if (formData.address) form.append("address", formData.address);
+
+      Object.entries(ownerExtra).forEach(([k, v]) => {
+        if (v) form.append(k, v as string);
+      });
+
+      documents.forEach((f) => form.append("documents", f));
+
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/auth/register-owner`,
+          {
+            method: "POST",
+            body: form,
+          },
+        );
+
+        const json = await res.json();
+        if (!res.ok) throw new Error(json.message || "Submission failed");
+
+        toast.success("Registration request submitted; awaiting approval");
+        router.push("/login");
+      } catch (err: unknown) {
+        toast.error(getErrorMessage(err));
+      }
+
+      return;
+    }
+
+    // Guest user normal path
     const payload: UserRegisterPayload = {
       firstName: formData.firstName,
       lastName: formData.lastName,
@@ -104,6 +155,13 @@ export default function SignupForm() {
     } catch (err: unknown) {
       toast.error(getErrorMessage(err));
     }
+  };
+
+  const handlePrev = () => setStep((s) => Math.max(1, s - 1));
+
+  const handleDocChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+    setDocuments(Array.from(e.target.files));
   };
 
   const inputClass =
@@ -137,31 +195,62 @@ export default function SignupForm() {
           </div>
 
           {/* Roles */}
-          <div className='flex rounded-md overflow-hidden border border-[#E7E5E4] mb-5'>
-            {roles.map((r: any, index: number) => (
-              <button
-                key={r.id}
-                type='button'
-                onClick={() => {
-                  if (isUserRole(r.name)) {
-                    setRole(r.name);
-                  }
-                }}
-                className='flex-1 py-2.5 text-sm font-semibold transition-all duration-150 focus:outline-none'
-                style={{
-                  background:
-                    role === r.name ? "var(--text-brand)" : "transparent",
-                  color: role === r.name ? "#fff" : "#979191",
-                  borderRight:
-                    index !== roles.length - 1 ? "1px solid #E7E5E4" : "none",
-                }}>
-                {r.name === "GUEST_USER" ? "Guest User" : "Property Owner"}
-              </button>
-            ))}
+          <div className='mb-5'>
+            <div className='mb-2 text-sm text-[#675d5d]'>Select a role</div>
+            <div className='flex rounded-md overflow-hidden border border-[#E7E5E4]'>
+              {signupRoles.map((r, index) => (
+                  <button
+                    key={r.name}
+                    type='button'
+                    onClick={() => {
+                      if (isUserRole(r.name)) {
+                        setRole(r.name);
+                      }
+                    }}
+                    className='flex-1 py-2.5 text-sm font-semibold transition-all duration-150 focus:outline-none'
+                    style={{
+                      background:
+                        role === r.name ? "var(--text-brand)" : "transparent",
+                      color: role === r.name ? "#fff" : "#979191",
+                      borderRight:
+                        index !== signupRoles.length - 1
+                          ? "1px solid #E7E5E4"
+                          : "none",
+                    }}>
+                    {r.label}
+                  </button>
+              ))}
+            </div>
           </div>
 
           {/* Form */}
           <form onSubmit={handleSubmit} className='space-y-3'>
+            {/* Progress / Step indicator */}
+            {role === "PROPERTY_OWNER" && (
+              <div className='mb-3'>
+                <div className='flex items-center gap-2 text-sm'>
+                  <div
+                    className={step >= 1 ? "font-semibold" : "text-gray-400"}>
+                    1. Account
+                  </div>
+                  <div
+                    className={step >= 2 ? "font-semibold" : "text-gray-400"}>
+                    2. Details
+                  </div>
+                  <div
+                    className={step >= 3 ? "font-semibold" : "text-gray-400"}>
+                    3. Documents
+                  </div>
+                </div>
+                <div className='h-1 bg-gray-200 rounded mt-2'>
+                  <div
+                    className='h-1 bg-(--text-brand) rounded'
+                    style={{ width: `${(step / 3) * 100}%` }}
+                  />
+                </div>
+              </div>
+            )}
+
             {/* Name */}
             <div className='flex gap-3'>
               <input
@@ -226,22 +315,133 @@ export default function SignupForm() {
             />
 
             {/* Address */}
-            <input
-              type='text'
-              name='address'
-              value={formData.address}
-              onChange={handleChange}
-              placeholder='123 Main St, Dhaka'
-              className={inputClass}
-            />
+            {!(role === "PROPERTY_OWNER" && step === 2) && (
+              <input
+                type='text'
+                name='address'
+                value={formData.address}
+                onChange={handleChange}
+                placeholder='123 Main St, Dhaka'
+                className={inputClass}
+              />
+            )}
 
-            {/* Submit */}
-            <button
-              type='submit'
-              disabled={isLoading}
-              className='w-full mt-7 py-3.5 bg-(--text-brand) text-white font-semibold rounded-full disabled:opacity-50'>
-              {isLoading ? "Signing up..." : "Sign Up"}
-            </button>
+            {/* Property Owner extra fields (step 2) */}
+            {role === "PROPERTY_OWNER" && step >= 2 && (
+              <div className='space-y-2'>
+                <input
+                  type='text'
+                  name='nidNumber'
+                  value={ownerExtra.nidNumber}
+                  onChange={(e) =>
+                    setOwnerExtra({ ...ownerExtra, nidNumber: e.target.value })
+                  }
+                  placeholder='NID / Passport Number'
+                  className={inputClass}
+                />
+                <input
+                  type='date'
+                  name='dob'
+                  value={ownerExtra.dob}
+                  onChange={(e) =>
+                    setOwnerExtra({ ...ownerExtra, dob: e.target.value })
+                  }
+                  placeholder='Date of birth'
+                  className={inputClass}
+                />
+                <input
+                  type='text'
+                  name='presentAddress'
+                  value={ownerExtra.presentAddress}
+                  onChange={(e) =>
+                    setOwnerExtra({
+                      ...ownerExtra,
+                      presentAddress: e.target.value,
+                    })
+                  }
+                  placeholder='Present address'
+                  className={inputClass}
+                />
+                <input
+                  type='text'
+                  name='permanentAddress'
+                  value={ownerExtra.permanentAddress}
+                  onChange={(e) =>
+                    setOwnerExtra({
+                      ...ownerExtra,
+                      permanentAddress: e.target.value,
+                    })
+                  }
+                  placeholder='Permanent address'
+                  className={inputClass}
+                />
+                <input
+                  type='text'
+                  name='profession'
+                  value={ownerExtra.profession}
+                  onChange={(e) =>
+                    setOwnerExtra({ ...ownerExtra, profession: e.target.value })
+                  }
+                  placeholder='Profession'
+                  className={inputClass}
+                />
+                <input
+                  type='text'
+                  name='companyName'
+                  value={ownerExtra.companyName}
+                  onChange={(e) =>
+                    setOwnerExtra({
+                      ...ownerExtra,
+                      companyName: e.target.value,
+                    })
+                  }
+                  placeholder='Company name (optional)'
+                  className={inputClass}
+                />
+              </div>
+            )}
+
+            {/* Documents (step 3) */}
+            {role === "PROPERTY_OWNER" && step === 3 && (
+              <div className='space-y-2'>
+                <label className='text-sm'>
+                  Upload documents (NID front/back, photo)
+                </label>
+                <input
+                  type='file'
+                  multiple
+                  accept='image/*,application/pdf'
+                  onChange={handleDocChange}
+                />
+              </div>
+            )}
+
+            {/* Step-specific controls */}
+            {role === "PROPERTY_OWNER" ? (
+              <div className='flex gap-2'>
+                {step > 1 && (
+                  <button
+                    type='button'
+                    onClick={handlePrev}
+                    className='flex-1 py-3.5 border rounded'>
+                    Previous
+                  </button>
+                )}
+
+                <button
+                  type='submit'
+                  className='flex-1 py-3.5 bg-(--text-brand) text-white font-semibold rounded-full'>
+                  {step < 3 ? "Next" : "Submit Registration Request"}
+                </button>
+              </div>
+            ) : (
+              <button
+                type='submit'
+                disabled={isLoading}
+                className='w-full mt-7 py-3.5 bg-(--text-brand) text-white font-semibold rounded-full disabled:opacity-50'>
+                {isLoading ? "Signing up..." : "Sign Up"}
+              </button>
+            )}
           </form>
 
           {/* Login */}

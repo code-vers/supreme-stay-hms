@@ -9,6 +9,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Role } from '../../roles/entities/role.entity';
+import { UserStatus } from '../../common/enum/user.status.enum';
 
 @Entity('users')
 export class User {
@@ -32,8 +33,32 @@ export class User {
   @JoinColumn({ name: 'role' })
   role!: Role;
 
-  @Column({ type: 'boolean', default: true })
-  status!: boolean;
+  @Column({ type: 'enum', enum: UserStatus, default: UserStatus.ACTIVE })
+  status!: UserStatus;
+
+  @Column({ type: 'text', nullable: true })
+  nidNumber?: string;
+
+  @Column({ type: 'date', nullable: true })
+  dob?: Date;
+
+  @Column({ type: 'text', nullable: true })
+  presentAddress?: string;
+
+  @Column({ type: 'text', nullable: true })
+  permanentAddress?: string;
+
+  @Column({ type: 'text', nullable: true })
+  profession?: string;
+
+  @Column({ type: 'text', nullable: true })
+  companyName?: string;
+
+  @Column({ type: 'jsonb', nullable: true })
+  documents?: { url: string; name?: string; type?: string }[];
+
+  @Column({ type: 'text', nullable: true })
+  rejectionReason?: string;
 
   @Column({ type: 'text', nullable: true })
   imageUrl?: string;

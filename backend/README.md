@@ -31,6 +31,22 @@
 $ npm install
 ```
 
+## Environment
+
+Add these values to `.env` for the property-owner approval flow:
+
+```bash
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+MAIL_ADMINS=admin1@example.com,admin2@example.com
+```
+
+## Database migration
+
+Run the new user-status migration before using the updated registration flow.
+Use your existing TypeORM migration command configured for this project and apply `src/database/migrations/1683410000000-AddUserStatusAndOwnerFields.ts`.
+
 ## Compile and run the project
 
 ```bash
