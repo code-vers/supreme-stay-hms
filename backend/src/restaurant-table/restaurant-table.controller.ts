@@ -40,6 +40,15 @@ export class RestaurantTableController {
     return this.restaurantTableService.findAll(query);
   }
 
+  @Get('restaurant/:restaurantId')
+  findByRestaurant(
+    @Param('restaurantId') restaurantId: string,
+    @Query() query: QueryRestaurantTableDto,
+  ) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return this.restaurantTableService.findByRestaurantId(restaurantId, query);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.restaurantTableService.findOne(id);

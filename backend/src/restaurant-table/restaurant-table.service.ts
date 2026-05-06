@@ -98,6 +98,21 @@ export class RestaurantTableService {
     };
   }
 
+  async findByRestaurantId(
+    restaurantId: string,
+    query: QueryRestaurantTableDto,
+  ) {
+    const restaurant = await this.restaurantRepo.findOne({
+      where: { id: restaurantId },
+    });
+    if (!restaurant) throw new NotFoundException('Restaurant not found');
+
+    return this.findAll({
+      ...query,
+      restaurant_id: restaurantId,
+    });
+  }
+
   async findOne(id: string): Promise<RestaurantTable> {
     const table = await this.tableRepo.findOne({ where: { id } });
     if (!table) throw new NotFoundException('Restaurant table not found');

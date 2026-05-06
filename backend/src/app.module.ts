@@ -6,15 +6,17 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { GlobalExceptionFilter } from './common/filters/http-exception.filter';
 import { HotelsModule } from './hotels/hotels.module';
+import { MenuItemModule } from './menu_items/menu_items.module';
 import { Permission } from './permissions/entities/permission.entity';
+import { ReservationModule } from './restaurant_table_reservation/restaurant_table_reservation.module';
+import { RestaurantTableModule } from './restaurant-table/restaurant-table.module';
+import { RestaurantModule } from './restaurant/restaurant.module';
+
 import { Role } from './roles/entities/role.entity';
+import { RoomModule } from './room/room.module';
 import { User } from './users/entities/user.entity';
 import { UsersModule } from './users/users.module';
-import { RoomModule } from './room/room.module';
-import { RestaurantModule } from './restaurant/restaurant.module';
-import { RestaurantTableModule } from './restaurant-table/restaurant-table.module';
-import { MenuItemModule } from './menu_items/menu_items.module';
-import { RestaurantTableReservationModule } from './restaurant_table_reservation/restaurant_table_reservation.module';
+import { MenuOrderItemModule } from './menu-order-item/menu-order-item.module';
 
 @Module({
   imports: [
@@ -39,7 +41,8 @@ import { RestaurantTableReservationModule } from './restaurant_table_reservation
     RestaurantModule,
     RestaurantTableModule,
     MenuItemModule,
-    RestaurantTableReservationModule,
+    ReservationModule,
+    MenuOrderItemModule,
   ],
   controllers: [AppController],
   providers: [
