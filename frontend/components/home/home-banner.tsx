@@ -4,8 +4,8 @@ import Title from "../shared/title";
 const HomeBanner = () => {
   return (
     <section className='w-full bg-[#efefef] border-3 border-(--border)'>
-      <div className='mx-auto px-0 sm:px-3 md:p-3'>
-        <div className='relative h-65 sm:h-80 md:h-200 overflow-hidden'>
+      <div className='mx-auto px-0 sm:px-1 md:p-1'>
+        <div className='relative h-65 sm:h-80 md:h-210 overflow-hidden'>
           {/* Background image */}
           <Image
             src='/home/banner.jpg'
