@@ -4,12 +4,18 @@ import {
   useGetRolesQuery,
   useUserRegisterMutation,
 } from "@/service/authantication/Auth";
+import { userRegister as UserRegisterPayload } from "@/type/RegisterType";
 import { Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+
+type UserRole = UserRegisterPayload["role"];
+
+const isUserRole = (value: string): value is UserRole =>
+  value === "GUEST_USER" || value === "PROPERTY_OWNER";
 
 export default function SignupForm() {
   const router = useRouter();
@@ -23,7 +29,7 @@ export default function SignupForm() {
     address: "",
   });
 
-  const [role, setRole] = useState<string>(""); // ✅ role NAME
+  const [role, setRole] = useState<UserRole>("GUEST_USER");
   const [showPassword, setShowPassword] = useState(false);
 
   const [userRegister, { isLoading, isError, error }] =
@@ -36,7 +42,10 @@ export default function SignupForm() {
   useEffect(() => {
     if (roles.length > 0) {
       const defaultRole = roles.find((r: any) => r.name === "GUEST_USER");
-      setRole(defaultRole?.name || roles[0].name);
+      const resolvedRole = defaultRole?.name || roles[0].name;
+      if (isUserRole(resolvedRole)) {
+        setRole(resolvedRole);
+      }
     }
   }, [data]);
 
@@ -67,12 +76,12 @@ export default function SignupForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const payload = {
+    const payload: UserRegisterPayload = {
       firstName: formData.firstName,
       lastName: formData.lastName,
       email: formData.email,
       password: formData.password,
-      role, // ✅ ROLE NAME যাচ্ছে
+      role, // ✅ ROLE NAME
       ...(formData.phoneNumber && { phoneNumber: formData.phoneNumber }),
       ...(formData.address && { address: formData.address }),
     };
@@ -133,7 +142,11 @@ export default function SignupForm() {
               <button
                 key={r.id}
                 type='button'
-                onClick={() => setRole(r.name)}
+                onClick={() => {
+                  if (isUserRole(r.name)) {
+                    setRole(r.name);
+                  }
+                }}
                 className='flex-1 py-2.5 text-sm font-semibold transition-all duration-150 focus:outline-none'
                 style={{
                   background:

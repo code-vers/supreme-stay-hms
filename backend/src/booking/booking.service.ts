@@ -118,7 +118,7 @@ export class BookingService {
     const { total_nights, total_amount } = this.calculateBookingAmounts(
       dto.check_in,
       dto.check_out,
-      room.price_per_night, // Room entity তে এই field আছে assume করলাম
+      room.rate_per_night, // Room entity তে এই field আছে assume করলাম
     );
 
     const booking = this.bookingRepo.create({
@@ -248,7 +248,7 @@ export class BookingService {
       room_id: roomId,
       room_number: room.room_number,
       room_type: room.room_type,
-      price_per_night: room.price_per_night,
+      price_per_night: room.rate_per_night,
       is_available: isAvailable,
       checked_range: { check_in: checkIn, check_out: checkOut },
       blocked_dates: upcomingBookings.map((b) => ({
