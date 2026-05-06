@@ -199,26 +199,26 @@ export default function SignupForm() {
             <div className='mb-2 text-sm text-[#675d5d]'>Select a role</div>
             <div className='flex rounded-md overflow-hidden border border-[#E7E5E4]'>
               {signupRoles.map((r, index) => (
-                  <button
-                    key={r.name}
-                    type='button'
-                    onClick={() => {
-                      if (isUserRole(r.name)) {
-                        setRole(r.name);
-                      }
-                    }}
-                    className='flex-1 py-2.5 text-sm font-semibold transition-all duration-150 focus:outline-none'
-                    style={{
-                      background:
-                        role === r.name ? "var(--text-brand)" : "transparent",
-                      color: role === r.name ? "#fff" : "#979191",
-                      borderRight:
-                        index !== signupRoles.length - 1
-                          ? "1px solid #E7E5E4"
-                          : "none",
-                    }}>
-                    {r.label}
-                  </button>
+                <button
+                  key={r.name}
+                  type='button'
+                  onClick={() => {
+                    if (isUserRole(r.name)) {
+                      setRole(r.name);
+                    }
+                  }}
+                  className='flex-1 py-2.5 text-sm font-semibold transition-all duration-150 focus:outline-none'
+                  style={{
+                    background:
+                      role === r.name ? "var(--text-brand)" : "transparent",
+                    color: role === r.name ? "#fff" : "#979191",
+                    borderRight:
+                      index !== signupRoles.length - 1
+                        ? "1px solid #E7E5E4"
+                        : "none",
+                  }}>
+                  {r.label}
+                </button>
               ))}
             </div>
           </div>
