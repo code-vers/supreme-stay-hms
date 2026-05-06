@@ -19,7 +19,7 @@ import {
 import {
   Reservation,
   ReservationStatus,
-} from 'src/reservation/entities/reservation.entity';
+} from 'src/restaurant_table_reservation/entities/restaurant_table_reservation.entity';
 import { Room } from 'src/room/entities/room.entity';
 import { Brackets, Repository } from 'typeorm';
 import { CreateBillingDto } from './dto/create-billing.dto';

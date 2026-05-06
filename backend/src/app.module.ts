@@ -12,13 +12,13 @@ import { RestaurantTableModule } from './restaurant-table/restaurant-table.modul
 import { RestaurantModule } from './restaurant/restaurant.module';
 import { ReservationModule } from './restaurant_table_reservation/restaurant_table_reservation.module';
 
+import { Billing } from './billings/entities/billing.entity';
 import { BookingModule } from './booking/booking.module';
 import { MenuOrderItemModule } from './menu-order-item/menu-order-item.module';
 import { Role } from './roles/entities/role.entity';
 import { RoomModule } from './room/room.module';
 import { User } from './users/entities/user.entity';
 import { UsersModule } from './users/users.module';
-import { BillingsModule } from './billings/billings.module';
 
 @Module({
   imports: [
@@ -46,7 +46,7 @@ import { BillingsModule } from './billings/billings.module';
     ReservationModule,
     MenuOrderItemModule,
     BookingModule,
-    BillingsModule,
+    Billing,
   ],
   controllers: [AppController],
   providers: [
