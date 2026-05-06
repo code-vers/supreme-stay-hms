@@ -13,6 +13,7 @@ import { UsersModule } from './users/users.module';
 import { RoomModule } from './room/room.module';
 import { RestaurantModule } from './restaurant/restaurant.module';
 import { RestaurantTableModule } from './restaurant-table/restaurant-table.module';
+import { MenuItemsModule } from './menu_items/menu_items.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { RestaurantTableModule } from './restaurant-table/restaurant-table.modul
     RoomModule,
     RestaurantModule,
     RestaurantTableModule,
+    MenuItemsModule,
   ],
   controllers: [AppController],
   providers: [
