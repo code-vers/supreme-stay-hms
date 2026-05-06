@@ -2,7 +2,7 @@
 import { Booking } from 'src/booking/entities/booking.entity';
 import { Hotel } from 'src/hotels/entities/hotel.entity';
 import { MenuOrderItem } from 'src/menu-order-item/entities/menu-order-item.entity';
-import { Reservation } from 'src/reservation/entities/reservation.entity';
+import { Reservation } from 'src/restaurant_table_reservation/entities/restaurant_table_reservation.entity';
 import { Room } from 'src/room/entities/room.entity';
 import {
   Column,
