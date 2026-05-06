@@ -8,15 +8,16 @@ import { GlobalExceptionFilter } from './common/filters/http-exception.filter';
 import { HotelsModule } from './hotels/hotels.module';
 import { MenuItemModule } from './menu_items/menu_items.module';
 import { Permission } from './permissions/entities/permission.entity';
-import { ReservationModule } from './restaurant_table_reservation/restaurant_table_reservation.module';
 import { RestaurantTableModule } from './restaurant-table/restaurant-table.module';
 import { RestaurantModule } from './restaurant/restaurant.module';
+import { ReservationModule } from './restaurant_table_reservation/restaurant_table_reservation.module';
 
+import { BookingModule } from './booking/booking.module';
+import { MenuOrderItemModule } from './menu-order-item/menu-order-item.module';
 import { Role } from './roles/entities/role.entity';
 import { RoomModule } from './room/room.module';
 import { User } from './users/entities/user.entity';
 import { UsersModule } from './users/users.module';
-import { MenuOrderItemModule } from './menu-order-item/menu-order-item.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { MenuOrderItemModule } from './menu-order-item/menu-order-item.module';
     MenuItemModule,
     ReservationModule,
     MenuOrderItemModule,
+    BookingModule,
   ],
   controllers: [AppController],
   providers: [
