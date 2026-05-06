@@ -18,6 +18,7 @@ import { Role } from './roles/entities/role.entity';
 import { RoomModule } from './room/room.module';
 import { User } from './users/entities/user.entity';
 import { UsersModule } from './users/users.module';
+import { BillingsModule } from './billings/billings.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { UsersModule } from './users/users.module';
     ReservationModule,
     MenuOrderItemModule,
     BookingModule,
+    BillingsModule,
   ],
   controllers: [AppController],
   providers: [
