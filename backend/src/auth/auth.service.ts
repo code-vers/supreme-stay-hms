@@ -1,21 +1,23 @@
 import {
+  BadRequestException,
+  ConflictException,
   Injectable,
   UnauthorizedException,
-  ConflictException,
-  BadRequestException,
 } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { UsersService } from '../users/users.service';
+import { JwtService } from '@nestjs/jwt';
+import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
-import { RegisterDto } from './dto/register.dto';
-import { LoginDto } from './dto/login.dto';
-import { User } from '../users/entities/user.entity';
-import { PasswordResetToken } from './entity/password.reset.token.entity';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, LessThan } from 'typeorm';
+import { UserRole } from 'src/common/enum/user.role.enun';
 import { MailService } from 'src/common/mail/mail.service';
+import { Role } from 'src/roles/entities/role.entity';
+import { LessThan, Repository } from 'typeorm';
+import { User } from '../users/entities/user.entity';
+import { UsersService } from '../users/users.service';
+import { LoginDto } from './dto/login.dto';
+import { RegisterDto } from './dto/register.dto';
+import { PasswordResetToken } from './entity/password.reset.token.entity';
 
 @Injectable()
 export class AuthService {
@@ -23,19 +25,41 @@ export class AuthService {
     private usersService: UsersService,
     private jwtService: JwtService,
     private config: ConfigService,
-    private mailService : MailService,
+    private mailService: MailService,
 
-  
     @InjectRepository(PasswordResetToken)
     private tokenRepo: Repository<PasswordResetToken>,
+    @InjectRepository(Role)
+    private rolesRepo: Repository<Role>,
   ) {}
 
   // Registration
   async register(registerDto: RegisterDto) {
-    const { email, password, firstName, lastName } = registerDto;
+    const {
+      email,
+      password,
+      firstName,
+      lastName,
+      role,
+      phoneNumber,
+      address,
+      imageUrl,
+    } = registerDto;
 
     const existing = await this.usersService.findOneByEmail(email);
     if (existing) throw new ConflictException('User already exists');
+
+    const isUuid =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+        role,
+      );
+
+    const selectedRole = await this.rolesRepo.findOne({
+      where: isUuid ? { id: role } : { name: role as UserRole },
+    });
+    if (!selectedRole) {
+      throw new BadRequestException('Invalid role');
+    }
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await this.usersService.create({
@@ -43,6 +67,10 @@ export class AuthService {
       password: hashedPassword,
       firstName,
       lastName,
+      role: selectedRole,
+      phoneNumber,
+      address,
+      imageUrl,
     });
 
     return { message: 'User registered successfully', userId: user.id };
@@ -107,7 +135,13 @@ export class AuthService {
 
   // Token generator
   private async generateTokens(user: User) {
-    const payload = { sub: user.id, email: user.email, role: user.role };
+    const payload = {
+      sub: user.id,
+      email: user.email,
+      roleId: user.role?.id ?? null,
+      roleName: user.role?.name ?? null,
+      role: user.role?.name ?? null, // backward compatibility
+    };
 
     const [access_token, refresh_token] = await Promise.all([
       this.jwtService.signAsync(payload, {
@@ -123,7 +157,13 @@ export class AuthService {
     return { access_token, refresh_token };
   }
 
-  
+  //get public role
+
+  async getUserRole() {
+    const roles = await this.rolesRepo.find();
+    return roles;
+  }
+
   //  FORGOT PASSWORD
 
   async forgotPassword(email: string) {
@@ -133,7 +173,7 @@ export class AuthService {
       return { message: 'If account exists, reset link sent' };
     }
 
-    // old token invalidate TODO:enable must be 
+    // old token invalidate TODO:enable must be
     // await this.tokenRepo.update(
     //   { userId: user.id, used: false },
     //   { used: true },
@@ -159,22 +199,15 @@ export class AuthService {
 
     const resetLink = `http://localhost:3000/reset-password?token=${rawToken}`;
 
-  await this.mailService.sendResetPasswordEmail(
-  user.email,
-  resetLink,
-);
+    await this.mailService.sendResetPasswordEmail(user.email, resetLink);
 
     return { message: 'If account exists, reset link sent' };
   }
 
-
   //  RESET PASSWORD
 
   async resetPassword(token: string, password: string) {
-    const hashedToken = crypto
-      .createHash('sha256')
-      .update(token)
-      .digest('hex');
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
 
     const tokenEntry = await this.tokenRepo.findOne({
       where: {
@@ -205,13 +238,11 @@ export class AuthService {
     return { message: 'Password reset successful' };
   }
 
-
   // MAIL (TEMP)
 
-  private async sendMail(email: string, resetLink: string) {
-    console.log(`Send mail to ${email}: ${resetLink}`);
-  }
-
+  // private async sendMail(email: string, resetLink: string) {
+  //   console.log(`Send mail to ${email}: ${resetLink}`);
+  // }
 
   //  CLEANUP
 

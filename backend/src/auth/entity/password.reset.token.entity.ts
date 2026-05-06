@@ -1,9 +1,9 @@
 import {
-  Entity,
   Column,
-  PrimaryGeneratedColumn,
-  Index,
   CreateDateColumn,
+  Entity,
+  Index,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 
 @Entity('password_reset_tokens')

@@ -1,26 +1,12 @@
 import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
+  Entity,
   JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Permission } from '../../permissions/entities/permission.entity';
-
-export enum UserRole {
-  SUPER_ADMIN = 'SUPER_ADMIN',
-  PROPERTY_OWNER = 'PROPERTY_OWNER',
-  GENERAL_MANAGER = 'GENERAL_MANAGER',
-  FRONT_DESK_MANAGER = 'FRONT_DESK_MANAGER',
-  RECEPTIONIST = 'RECEPTIONIST',
-  HOUSEKEEPING_MANAGER = 'HOUSEKEEPING_MANAGER',
-  HOUSEKEEPING_STAFF = 'HOUSEKEEPING_STAFF',
-  ACCOUNTANT = 'ACCOUNTANT',
-  POS_MANAGER = 'POS_MANAGER',
-  MAINTENANCE_STAFF = 'MAINTENANCE_STAFF',
-  HR_MANAGER = 'HR_MANAGER',
-  GUEST_USER = 'GUEST_USER',
-}
+import { UserRole } from 'src/common/enum/user.role.enun';
 
 @Entity('roles')
 export class Role {

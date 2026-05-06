@@ -10,8 +10,6 @@ import { Request, Response } from 'express';
 import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
-/* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment */
-
 export interface ValidationError {
   field: string;
   message: string;

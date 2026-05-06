@@ -1,11 +1,12 @@
 "use client";
 
+import { useUserLoginMutation } from "@/service/authantication/Auth";
+import { Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { toast } from "sonner";
-import { Eye, EyeOff } from "lucide-react";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -15,14 +16,45 @@ export default function LoginForm() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [userLogin] = useUserLoginMutation();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const getErrorMessage = (error: unknown) => {
+    const fallback = "Login failed. Please try again.";
+    if (!error || typeof error !== "object") return fallback;
+
+    const err = error as {
+      data?: { message?: string | string[] };
+      message?: string;
+    };
+
+    if (Array.isArray(err.data?.message)) return err.data.message.join(", ");
+    if (typeof err.data?.message === "string") return err.data.message;
+    if (typeof err.message === "string") return err.message;
+
+    return fallback;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+
+    try {
+      await userLogin({
+        email: formData.email,
+        password: formData.password,
+      }).unwrap();
+
+      toast.success("Login successful!");
+      router.push("/");
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error));
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

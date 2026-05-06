@@ -1,13 +1,13 @@
+import { Exclude } from 'class-transformer';
 import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
-  UpdateDateColumn,
+  Entity,
   JoinColumn,
   ManyToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
-import { Exclude } from 'class-transformer';
 import { Role } from '../../roles/entities/role.entity';
 
 @Entity('users')
@@ -29,7 +29,7 @@ export class User {
   lastName!: string;
 
   @ManyToOne(() => Role, { nullable: true, eager: true })
-  @JoinColumn({ name: 'role_id' })
+  @JoinColumn({ name: 'role' })
   role!: Role;
 
   @Column({ type: 'boolean', default: true })

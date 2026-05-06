@@ -6,7 +6,7 @@ import { ResponseTransformerInterceptor } from './common/interceptor/response.in
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe());
-    app.useGlobalInterceptors(new ResponseTransformerInterceptor());
+  app.useGlobalInterceptors(new ResponseTransformerInterceptor());
   app.enableCors();
   await app.listen(process.env.PORT ?? 5000);
 }
