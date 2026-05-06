@@ -14,6 +14,7 @@ import { RoomModule } from './room/room.module';
 import { RestaurantModule } from './restaurant/restaurant.module';
 import { RestaurantTableModule } from './restaurant-table/restaurant-table.module';
 import { MenuItemModule } from './menu_items/menu_items.module';
+import { RestaurantTableReservationModule } from './restaurant_table_reservation/restaurant_table_reservation.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { MenuItemModule } from './menu_items/menu_items.module';
     RestaurantModule,
     RestaurantTableModule,
     MenuItemModule,
+    RestaurantTableReservationModule,
   ],
   controllers: [AppController],
   providers: [
