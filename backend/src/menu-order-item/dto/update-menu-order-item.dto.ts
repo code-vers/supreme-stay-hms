@@ -1,4 +1,16 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateMenuOrderItemDto } from './create-menu-order-item.dto';
+// src/menu-order-item/dto/update-menu-order-item.dto.ts
+import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { PaymentStatus } from '../entities/menu-order-item.entity';
 
-export class UpdateMenuOrderItemDto extends PartialType(CreateMenuOrderItemDto) {}
+export class UpdateMenuOrderItemDto {
+  @IsEnum(PaymentStatus)
+  @IsOptional()
+  payment_status?: PaymentStatus;
+
+  @IsString()
+  @IsOptional()
+  note?: string;
+
+  @IsOptional()
+  delivery_time?: Date;
+}
