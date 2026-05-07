@@ -16,6 +16,17 @@ export const authApi = createApi({
 
   baseQuery: fetchBaseQuery({
     baseUrl: `${base_url}/auth`,
+    prepareHeaders: (headers) => {
+      const token = document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("access_token="))
+        ?.split("=")[1];
+
+      if (token) {
+        headers.set("Authorization", `Bearer ${token}`);
+      }
+      return headers;
+    },
   }),
 
   endpoints: (builder) => ({
@@ -51,6 +62,19 @@ export const authApi = createApi({
       },
     }),
 
+    // ================= GET ME =================
+    getMe: builder.query({
+      query: () => "/me",
+    }),
+
+    // ================= LOGOUT =================
+    userLogout: builder.mutation({
+      query: () => ({
+        url: "/logout",
+        method: "POST",
+      }),
+    }),
+
     // forget password
     forgetPassword: builder.mutation({
       query: (email: string) => ({
@@ -78,6 +102,8 @@ export const authApi = createApi({
 export const {
   useUserRegisterMutation,
   useUserLoginMutation,
+  useUserLogoutMutation,
+  useGetMeQuery,
   useForgetPasswordMutation,
   usePasswordResetMutation,
   useGetRolesQuery,
