@@ -1,8 +1,101 @@
 @import "tailwindcss";
 
 :root {
-  --text-brand: #411818;
-  --text-secondary: #fffef4;
-  --text-place: #b6a5a5;
-  --border: #cec1c1;
+  /* Brand & base */
+  --color-primary: #411818;
+  --color-bg: #fffef4;
+  --color-heading: #201818;
+  --color-body: #4d3e3e;
+  --color-secondary-text: #665353;
+  --color-muted: #7f6b6b;
+  --color-placeholder: #b6a5a5;
+  --color-disabled: #b6a5a5;
+  --color-brand: #411818;
+  --color-white: #f8f6f6;
+  --color-black: #120c0c;
+
+  /* System */
+  --color-fill-space: #f8f6f6;
+  --color-card-border: #cec1c1;
+  --color-warning: #f59e0b;
+  --color-success: #16a34a;
+  --color-error: #f43f5e;
+  --color-info: #3b82f6;
+
+  /* Compatibility aliases */
+  --text-brand: var(--color-brand);
+  --text-secondary: var(--color-bg);
+  --text-place: var(--color-placeholder);
+  --border: var(--color-card-border);
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-body);
+}
+
+@layer utilities {
+  .bg-app {
+    background-color: var(--color-bg);
+  }
+  .bg-surface {
+    background-color: var(--color-fill-space);
+  }
+  .bg-brand {
+    background-color: var(--color-brand);
+  }
+  .bg-soft {
+    background-color: #f3eded;
+  }
+  .bg-warning-soft {
+    background-color: #fef3c7;
+  }
+  .bg-success-soft {
+    background-color: #dcfce7;
+  }
+  .bg-error-soft {
+    background-color: #ffe4e6;
+  }
+  .bg-info-soft {
+    background-color: #dbeafe;
+  }
+  .bg-brand-soft {
+    background-color: #d9cece;
+  }
+  .text-heading {
+    color: var(--color-heading);
+  }
+  .text-body {
+    color: var(--color-body);
+  }
+  .text-secondary {
+    color: var(--color-secondary-text);
+  }
+  .text-muted {
+    color: var(--color-muted);
+  }
+  .text-placeholder {
+    color: var(--color-placeholder);
+  }
+  .text-brand {
+    color: var(--color-brand);
+  }
+  .border-card {
+    border-color: var(--color-card-border);
+  }
+  .ring-brand-soft {
+    --tw-ring-color: color-mix(in srgb, var(--color-brand) 20%, transparent);
+  }
+  .status-warning {
+    color: var(--color-warning);
+  }
+  .status-success {
+    color: var(--color-success);
+  }
+  .status-error {
+    color: var(--color-error);
+  }
+  .status-info {
+    color: var(--color-info);
+  }
 }
