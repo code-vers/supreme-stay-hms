@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-enum-comparison */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import {
   BadRequestException,
   ConflictException,
@@ -13,7 +15,8 @@ import { UserRole } from 'src/common/enum/user.role.enun';
 import { MailService } from 'src/common/mail/mail.service';
 import { Role } from 'src/roles/entities/role.entity';
 import { LessThan, Repository } from 'typeorm';
-import { User } from '../users/entities/user.entity';
+import { CloudinaryService } from '../common/cloudinary/cloudinary.service';
+import { OwnerApprovalStatus, User } from '../users/entities/user.entity';
 import { UsersService } from '../users/users.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
@@ -26,6 +29,7 @@ export class AuthService {
     private jwtService: JwtService,
     private config: ConfigService,
     private mailService: MailService,
+    private cloudinaryService: CloudinaryService,
 
     @InjectRepository(PasswordResetToken)
     private tokenRepo: Repository<PasswordResetToken>,
@@ -44,10 +48,21 @@ export class AuthService {
       phoneNumber,
       address,
       imageUrl,
+      nidNumber,
+      tradeLicenseNumber,
+      businessName,
+      propertyName,
+      ownerDocumentImage,
     } = registerDto;
 
     const existing = await this.usersService.findOneByEmail(email);
     if (existing) throw new ConflictException('User already exists');
+
+    if (role !== UserRole.GUEST_USER && role !== UserRole.PROPERTY_OWNER) {
+      throw new BadRequestException(
+        'Public registration supports only GUEST_USER and PROPERTY_OWNER',
+      );
+    }
 
     const isUuid =
       /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
@@ -61,6 +76,26 @@ export class AuthService {
       throw new BadRequestException('Invalid role');
     }
 
+    const isPropertyOwner = selectedRole.name === UserRole.PROPERTY_OWNER;
+
+    if (isPropertyOwner) {
+      if (!nidNumber || !businessName || !propertyName) {
+        throw new BadRequestException(
+          'Property owner must provide NID, business name and property name',
+        );
+      }
+    }
+
+    let ownerDocumentImageUrl: string | undefined;
+    if (isPropertyOwner && ownerDocumentImage) {
+      const upload = await this.cloudinaryService.uploadImage(
+        ownerDocumentImage,
+        'supreme-stay/owner-documents',
+      );
+      console.log(upload, 'image  upload complated');
+      ownerDocumentImageUrl = upload.secureUrl;
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await this.usersService.create({
       email,
@@ -71,9 +106,24 @@ export class AuthService {
       phoneNumber,
       address,
       imageUrl,
+      nidNumber,
+      tradeLicenseNumber,
+      businessName,
+      propertyName,
+      ownerDocumentImageUrl,
+      status: !isPropertyOwner,
+      ownerApprovalStatus: isPropertyOwner
+        ? OwnerApprovalStatus.PENDING
+        : OwnerApprovalStatus.NOT_REQUIRED,
     });
 
-    return { message: 'User registered successfully', userId: user.id };
+    return {
+      message: isPropertyOwner
+        ? 'Property owner registration submitted. Wait for admin approval.'
+        : 'User registered successfully',
+      userId: user.id,
+      ownerApprovalStatus: user.ownerApprovalStatus,
+    };
   }
 
   // Login
@@ -83,6 +133,14 @@ export class AuthService {
 
     if (!user || !(await bcrypt.compare(password, user.password))) {
       throw new UnauthorizedException('Invalid credentials');
+    }
+
+    if (!user.status) {
+      throw new UnauthorizedException(
+        user.ownerApprovalStatus === OwnerApprovalStatus.PENDING
+          ? 'Your account is pending admin approval'
+          : 'Your account is inactive',
+      );
     }
 
     const tokens = await this.generateTokens(user);
@@ -160,8 +218,50 @@ export class AuthService {
   //get public role
 
   async getUserRole() {
-    const roles = await this.rolesRepo.find();
+    const roles = await this.rolesRepo.find({
+      where: [{ name: UserRole.GUEST_USER }, { name: UserRole.PROPERTY_OWNER }],
+    });
     return roles;
+  }
+
+  async getPendingPropertyOwners() {
+    const users = await this.usersService.findPendingPropertyOwners();
+
+    return users.map((user) => ({
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      phoneNumber: user.phoneNumber,
+      address: user.address,
+      nidNumber: user.nidNumber,
+      tradeLicenseNumber: user.tradeLicenseNumber,
+      businessName: user.businessName,
+      propertyName: user.propertyName,
+      ownerDocumentImageUrl: user.ownerDocumentImageUrl,
+      ownerApprovalStatus: user.ownerApprovalStatus,
+      createdAt: user.createdAt,
+    }));
+  }
+
+  async approvePropertyOwner(userId: string) {
+    const user = await this.usersService.findOneById(userId);
+
+    if (!user) throw new BadRequestException('User not found');
+    if (user.role?.name !== UserRole.PROPERTY_OWNER) {
+      throw new BadRequestException('Only property owner can be approved');
+    }
+
+    const updated = await this.usersService.update(userId, {
+      status: true,
+      ownerApprovalStatus: OwnerApprovalStatus.APPROVED,
+    });
+
+    return {
+      message: 'Property owner approved successfully',
+      userId: updated?.id,
+      ownerApprovalStatus: updated?.ownerApprovalStatus,
+    };
   }
 
   //  FORGOT PASSWORD

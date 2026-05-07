@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { CloudinaryModule } from 'src/common/cloudinary/cloudinary.module';
 import { MailModule } from 'src/common/mail/mail.module';
 import { Role } from 'src/roles/entities/role.entity';
 import { UsersModule } from '../users/users.module';
@@ -19,6 +20,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     UsersModule,
     PassportModule,
     ConfigModule,
+    CloudinaryModule,
     MailModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],

@@ -27,7 +27,12 @@ export default function SignupForm() {
     password: "",
     phoneNumber: "",
     address: "",
+    nidNumber: "",
+    tradeLicenseNumber: "",
+    businessName: "",
+    propertyName: "",
   });
+  const [ownerDocumentImage, setOwnerDocumentImage] = useState<string>("");
 
   const [role, setRole] = useState<UserRole>("GUEST_USER");
   const [showPassword, setShowPassword] = useState(false);
@@ -57,6 +62,24 @@ export default function SignupForm() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const handleOwnerDocumentChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) {
+      setOwnerDocumentImage("");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        setOwnerDocumentImage(reader.result);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
   const getErrorMessage = (error: unknown) => {
     const fallback = "Registration failed. Please try again.";
     if (!error || typeof error !== "object") return fallback;
@@ -84,12 +107,23 @@ export default function SignupForm() {
       role, // ✅ ROLE NAME
       ...(formData.phoneNumber && { phoneNumber: formData.phoneNumber }),
       ...(formData.address && { address: formData.address }),
+      ...(role === "PROPERTY_OWNER" && {
+        nidNumber: formData.nidNumber,
+        tradeLicenseNumber: formData.tradeLicenseNumber,
+        businessName: formData.businessName,
+        propertyName: formData.propertyName,
+        ownerDocumentImage,
+      }),
     };
 
     try {
       await userRegister(payload).unwrap();
 
-      toast.success("Registration successful! Please log in");
+      toast.success(
+        role === "PROPERTY_OWNER"
+          ? "Registration submitted. Please wait for admin approval."
+          : "Registration successful! Please log in"
+      );
 
       setFormData({
         firstName: "",
@@ -98,7 +132,12 @@ export default function SignupForm() {
         password: "",
         phoneNumber: "",
         address: "",
+        nidNumber: "",
+        tradeLicenseNumber: "",
+        businessName: "",
+        propertyName: "",
       });
+      setOwnerDocumentImage("");
 
       router.push("/login");
     } catch (err: unknown) {
@@ -234,6 +273,56 @@ export default function SignupForm() {
               placeholder='123 Main St, Dhaka'
               className={inputClass}
             />
+
+            {role === "PROPERTY_OWNER" && (
+              <>
+                <input
+                  type='text'
+                  name='nidNumber'
+                  required
+                  value={formData.nidNumber}
+                  onChange={handleChange}
+                  placeholder='NID Number'
+                  className={inputClass}
+                />
+
+                <input
+                  type='text'
+                  name='businessName'
+                  required
+                  value={formData.businessName}
+                  onChange={handleChange}
+                  placeholder='Business Name'
+                  className={inputClass}
+                />
+
+                <input
+                  type='text'
+                  name='propertyName'
+                  required
+                  value={formData.propertyName}
+                  onChange={handleChange}
+                  placeholder='Property Name'
+                  className={inputClass}
+                />
+
+                <input
+                  type='text'
+                  name='tradeLicenseNumber'
+                  value={formData.tradeLicenseNumber}
+                  onChange={handleChange}
+                  placeholder='Trade License Number (optional)'
+                  className={inputClass}
+                />
+
+                <input
+                  type='file'
+                  accept='image/*'
+                  onChange={handleOwnerDocumentChange}
+                  className={inputClass}
+                />
+              </>
+            )}
 
             {/* Submit */}
             <button

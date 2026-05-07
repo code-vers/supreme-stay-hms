@@ -70,7 +70,10 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     else {
       status = HttpStatus.INTERNAL_SERVER_ERROR;
       type = 'SYSTEM_ERROR';
-      message = 'Something went wrong';
+      message =
+        exception instanceof Error
+          ? exception.message
+          : 'Something went wrong';
       errors = null;
     }
 
