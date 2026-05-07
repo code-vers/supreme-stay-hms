@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { UserRole } from 'src/common/enum/user.role.enun';
 import { Repository } from 'typeorm';
-import { User } from './entities/user.entity';
+import { OwnerApprovalStatus, User } from './entities/user.entity';
 
 @Injectable()
 export class UsersService {
@@ -37,5 +38,15 @@ export class UsersService {
   async update(userId: string, data: Partial<User>): Promise<User | null> {
     await this.usersRepository.update(userId, data);
     return this.findOneById(userId);
+  }
+
+  async findPendingPropertyOwners(): Promise<User[]> {
+    return this.usersRepository.find({
+      where: {
+        ownerApprovalStatus: OwnerApprovalStatus.PENDING,
+        role: { name: UserRole.PROPERTY_OWNER },
+      },
+      order: { createdAt: 'DESC' },
+    });
   }
 }

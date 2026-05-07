@@ -6,5 +6,9 @@ export interface userRegister {
   role: "GUEST_USER" | "PROPERTY_OWNER";
   phoneNumber?: string;
   address?: string;
-  image?: string;
+  nidNumber?: string;
+  tradeLicenseNumber?: string;
+  businessName?: string;
+  propertyName?: string;
+  ownerDocumentImage?: string;
 }

@@ -4,16 +4,21 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Param,
+  Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
+import { UserRole } from 'src/common/enum/user.role.enun';
 import { AuthService } from './auth.service';
+import { Roles } from './decorators/roles.decorator';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { RolesGuard } from './guards/roles.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -59,6 +64,20 @@ export class AuthController {
   @Get('roles')
   getUserRoles() {
     return this.authService.getUserRole();
+  }
+
+  @Get('admin/property-owners/pending')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.SUPER_ADMIN)
+  getPendingPropertyOwners() {
+    return this.authService.getPendingPropertyOwners();
+  }
+
+  @Patch('admin/property-owners/:id/approve')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.SUPER_ADMIN)
+  approvePropertyOwner(@Param('id') id: string) {
+    return this.authService.approvePropertyOwner(id);
   }
 
   //  FORGOT PASSWORD

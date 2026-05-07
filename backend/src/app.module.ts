@@ -19,6 +19,10 @@ import { Role } from './roles/entities/role.entity';
 import { RoomModule } from './room/room.module';
 import { User } from './users/entities/user.entity';
 import { UsersModule } from './users/users.module';
+import { SupplierModule } from './supplier/supplier.module';
+import { InventoryItemModule } from './inventory-item/inventory-item.module';
+import { InventoryLogModule } from './inventory-log/inventory-log.module';
+import { PurchaseItemModule } from './purchase-item/purchase-item.module';
 
 @Module({
   imports: [
@@ -47,6 +51,10 @@ import { UsersModule } from './users/users.module';
     MenuOrderItemModule,
     BookingModule,
     Billing,
+    SupplierModule,
+    InventoryItemModule,
+    InventoryLogModule,
+    PurchaseItemModule,
   ],
   controllers: [AppController],
   providers: [
