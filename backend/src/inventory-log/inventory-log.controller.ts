@@ -39,7 +39,7 @@ export class InventoryLogController {
     return this.inventoryLogService.findAll(query);
   }
 
-  // Item এর full stock history
+  // Item  full stock history
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.PROPERTY_OWNER)
   @Get('history/:itemId')
