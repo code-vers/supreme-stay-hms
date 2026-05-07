@@ -1,17 +1,42 @@
 "use client";
 
+import {
+  logoutUser,
+  useGetMeQuery,
+  useUserLogoutMutation,
+} from "@/service/authantication/Auth";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
+import { toast } from "sonner";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const router = useRouter();
+  const { data, isLoading } = useGetMeQuery(undefined);
+  const [userLogout] = useUserLogoutMutation();
+  const user = data?.data || data; // Handle both direct and wrapped response
 
   const navLinks = [
     { name: "Hotels", href: "/hotels" },
     { name: "About Us", href: "/about" },
     { name: "Contact Us", href: "/contact" },
   ];
+
+  const handleLogout = async () => {
+    try {
+      await userLogout(undefined).unwrap();
+    } catch (error) {
+      console.error("Logout error:", error);
+    } finally {
+      logoutUser();
+      toast.success("Logged out successfully");
+      router.push("/");
+      // Reload to clear RTK state and update UI
+      window.location.reload();
+    }
+  };
 
   return (
     <section className='border-b border-gray-200 bg-(--text-secondary) relative'>
@@ -46,23 +71,46 @@ export default function Navbar() {
         {/* Desktop Navigation Links */}
         <div className='hidden md:flex items-center gap-8 text-gray-800 font-medium'>
           {navLinks.map((link) => (
-            <a
+            <Link
               key={link.name}
               href={link.href}
               className='hover:text-gray-600 transition-colors text-lg'>
               {link.name}
-            </a>
+            </Link>
           ))}
         </div>
 
         {/* Desktop Auth Buttons */}
         <div className='hidden md:flex items-center gap-6'>
-          <button className='px-6 py-2 text-gray-800 border border-gray-800 rounded-lg hover:bg-gray-100 transition-colors'>
-            <Link href='/login'>Login</Link>
-          </button>
-          <button className='px-6 py-2 bg-(--text-brand) text-white rounded-lg hover:bg-[#3c2a22] transition-colors'>
-            <Link href='/register'>Register</Link>
-          </button>
+          {!isLoading && user ? (
+            <>
+              <Link
+                href='/dashboard'
+                className='px-6 py-2 text-gray-800 border border-gray-800 rounded-lg hover:bg-gray-100 transition-colors'>
+                Dashboard
+              </Link>
+              <button
+                onClick={handleLogout}
+                className='px-6 py-2 bg-(--text-brand) text-white rounded-lg hover:bg-[#3c2a22] transition-colors cursor-pointer'>
+                Logout
+              </button>
+            </>
+          ) : !isLoading ? (
+            <>
+              <Link
+                href='/login'
+                className='px-6 py-2 text-gray-800 border border-gray-800 rounded-lg hover:bg-gray-100 transition-colors'>
+                Login
+              </Link>
+              <Link
+                href='/register'
+                className='px-6 py-2 bg-(--text-brand) text-white rounded-lg hover:bg-[#3c2a22] transition-colors'>
+                Register
+              </Link>
+            </>
+          ) : (
+            <div className='w-20 h-8 bg-gray-200 animate-pulse rounded-lg'></div>
+          )}
         </div>
       </nav>
 
@@ -71,20 +119,48 @@ export default function Navbar() {
         <div className='md:hidden absolute top-full left-0 right-0 border-t border-gray-200 bg-(--text-secondary) z-50 shadow-lg mx-5'>
           <div className=' px-4 py-4 space-y-3'>
             {navLinks.map((link) => (
-              <a
+              <Link
                 key={link.name}
                 href={link.href}
-                className='block text-gray-800 hover:text-gray-600 transition-colors py-2 text-lg'>
+                className='block text-gray-800 hover:text-gray-600 transition-colors py-2 text-lg'
+                onClick={() => setIsOpen(false)}>
                 {link.name}
-              </a>
+              </Link>
             ))}
             <div className='flex flex-col gap-3 pt-4 border-t border-gray-200'>
-              <button className='w-full px-6 py-2 text-gray-800 border border-gray-800 rounded-lg hover:bg-gray-100 transition-colors'>
-                Login
-              </button>
-              <button className='w-full px-6 py-2 bg-(--text-brand) text-white rounded-lg hover:bg-[#3c2a22] transition-colors'>
-                Register
-              </button>
+              {!isLoading && user ? (
+                <>
+                  <Link
+                    href='/dashboard'
+                    className='w-full px-6 py-2 text-center text-gray-800 border border-gray-800 rounded-lg hover:bg-gray-100 transition-colors'
+                    onClick={() => setIsOpen(false)}>
+                    Dashboard
+                  </Link>
+                  <button
+                    onClick={() => {
+                      handleLogout();
+                      setIsOpen(false);
+                    }}
+                    className='w-full px-6 py-2 bg-(--text-brand) text-white rounded-lg hover:bg-[#3c2a22] transition-colors'>
+                    Logout
+                  </button>
+                </>
+              ) : !isLoading ? (
+                <>
+                  <Link
+                    href='/login'
+                    className='w-full px-6 py-2 text-center text-gray-800 border border-gray-800 rounded-lg hover:bg-gray-100 transition-colors'
+                    onClick={() => setIsOpen(false)}>
+                    Login
+                  </Link>
+                  <Link
+                    href='/register'
+                    className='w-full px-6 py-2 text-center bg-(--text-brand) text-white rounded-lg hover:bg-[#3c2a22] transition-colors'
+                    onClick={() => setIsOpen(false)}>
+                    Register
+                  </Link>
+                </>
+              ) : null}
             </div>
           </div>
         </div>
