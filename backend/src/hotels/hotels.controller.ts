@@ -30,17 +30,22 @@ export class HotelsController {
     @Body() createHotelDto: CreateHotelDto,
     @CurrentUser('userId') userId: string,
   ) {
+    console.log("📥 Creating hotel with userId:", userId, "Payload:", createHotelDto);
     return this.hotelsService.create(createHotelDto, userId);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get()
-  findAll(@Query() query: QueryHotelsDto) {
-    return this.hotelsService.findAll(query);
+  findAll(
+    @Query() query: QueryHotelsDto,
+    @CurrentUser('userId') userId?: string,
+  ) {
+    return this.hotelsService.findAll(query, userId);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.hotelsService.findOne(id);
+  @Get('debug-all')
+  debugAll() {
+    return this.hotelsService.debugFindAll();
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
