@@ -148,6 +148,14 @@ export class HotelsService {
     return this.hotelRepo.find();
   }
 
+  async findOne(id: string): Promise<Hotel> {
+    const hotel = await this.hotelRepo.findOne({ where: { id } });
+    if (!hotel) {
+      throw new NotFoundException('Hotel not found');
+    }
+    return hotel;
+  }
+
   async update(
     id: string,
     updateHotelDto: UpdateHotelDto,
@@ -162,7 +170,45 @@ export class HotelsService {
       throw new UnauthorizedException('Unauthorized');
     }
 
-    const updated = this.hotelRepo.merge(hotel, updateHotelDto);
+    let coverImageUrl = hotel.cover_image;
+    let galleryImageUrls = hotel.gallery_images || [];
+
+    // Handle cover image upload if new image provided (base64 data URL)
+    if (updateHotelDto.cover_image && updateHotelDto.cover_image.startsWith('data:')) {
+      const coverUpload = await this.cloudinaryService.uploadImage(
+        updateHotelDto.cover_image,
+        'supreme-stay/hotels/cover-images',
+      );
+      coverImageUrl = coverUpload.secureUrl;
+    } else if (updateHotelDto.cover_image) {
+      // If it's a URL string, keep it as-is
+      coverImageUrl = updateHotelDto.cover_image;
+    }
+
+    // Handle gallery images - distinguish between new uploads and existing URLs
+    if (Array.isArray(updateHotelDto.gallery_images) && updateHotelDto.gallery_images.length > 0) {
+      const uploadedUrls: string[] = [];
+      for (const imageData of updateHotelDto.gallery_images) {
+        // If it's a base64 data URL, upload to Cloudinary
+        if (typeof imageData === 'string' && imageData.startsWith('data:')) {
+          const galleryUpload = await this.cloudinaryService.uploadImage(
+            imageData,
+            'supreme-stay/hotels/gallery-images',
+          );
+          uploadedUrls.push(galleryUpload.secureUrl);
+        } else if (typeof imageData === 'string') {
+          // If it's already a URL, keep it
+          uploadedUrls.push(imageData);
+        }
+      }
+      galleryImageUrls = uploadedUrls;
+    }
+
+    const updated = this.hotelRepo.merge(hotel, {
+      ...updateHotelDto,
+      cover_image: coverImageUrl,
+      gallery_images: galleryImageUrls,
+    });
     return this.hotelRepo.save(updated);
   }
 
