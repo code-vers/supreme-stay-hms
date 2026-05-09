@@ -21,6 +21,7 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import StatCard from "../../common/StatCard";
 import AddHotelForm from "./AddHotelForm";
+import HotelFormModal from "./HotelFormModal";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 type HotelRow = {
@@ -37,6 +38,8 @@ type HotelRow = {
 // ── Page ──────────────────────────────────────────────────────────────────
 export default function HotelsPage() {
   const [showAddForm, setShowAddForm] = useState(false);
+  const [selectedHotelId, setSelectedHotelId] = useState<string | null>(null);
+  const [modalMode, setModalMode] = useState<"view" | "edit" | null>(null);
   const [locationFilter, setLocationFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -72,11 +75,17 @@ export default function HotelsPage() {
 
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this hotel?")) return;
+    
+    const toastId = toast.loading("Deleting hotel...");
     try {
       await deleteHotel(id).unwrap();
-      toast.success("Hotel deleted successfully");
-    } catch (error) {
-      toast.error("Failed to delete hotel");
+      toast.success("Hotel deleted successfully", { id: toastId });
+      // The invalidatesTags in RTK Query should handle the update, 
+      // but we can refetch manually if needed to be absolute.
+      await refetch();
+    } catch (error: any) {
+      console.error("❌ Delete error:", error);
+      toast.error(error?.data?.message || "Failed to delete hotel. Please try again.", { id: toastId });
     }
   };
 
@@ -147,12 +156,20 @@ export default function HotelsPage() {
     {
       label: "View",
       variant: "view",
-      onClick: (row) => console.log("View", row),
+      onClick: (row) => {
+        console.log("👁️ View hotel:", row.id);
+        setSelectedHotelId(row.id);
+        setModalMode("view");
+      },
     },
     {
       label: "Edit",
       variant: "edit",
-      onClick: (row) => console.log("Edit", row),
+      onClick: (row) => {
+        console.log("✏️ Edit hotel:", row.id);
+        setSelectedHotelId(row.id);
+        setModalMode("edit");
+      },
     },
     {
       label: "Delete",
@@ -271,6 +288,34 @@ export default function HotelsPage() {
                   console.log("🔄 Starting refetch from HotelPage...");
                   const result = await refetch();
                   console.log("✅ Refetch result:", result);
+                  return result;
+                } catch (error) {
+                  console.error("❌ Refetch failed:", error);
+                  throw error;
+                }
+              }}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* View/Edit Hotel Modal */}
+      {selectedHotelId && modalMode && (
+        <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto'>
+          <div className='w-full max-w-2xl my-auto'>
+            <HotelFormModal
+              hotelId={selectedHotelId}
+              mode={modalMode}
+              onClose={() => {
+                console.log("📤 Closing form modal...");
+                setSelectedHotelId(null);
+                setModalMode(null);
+              }}
+              onSuccess={async () => {
+                try {
+                  console.log("🔄 Refetching hotels after update...");
+                  const result = await refetch();
+                  console.log("✅ Refetch complete");
                   return result;
                 } catch (error) {
                   console.error("❌ Refetch failed:", error);

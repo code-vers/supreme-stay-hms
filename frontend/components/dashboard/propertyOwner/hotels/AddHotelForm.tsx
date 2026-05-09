@@ -175,26 +175,44 @@ export default function AddHotelForm({
     }
   };
 
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
+  };
+
   const onSubmit = async (data: HotelFormData) => {
-    console.log("Submit button clicked! Payload:", data);
+    console.log("🚀 Submit button clicked! Payload:", data);
     try {
+      // Convert images to base64 if they are Files
+      let coverBase64 = typeof data.cover_image === "string" ? data.cover_image : "";
+      if (data.cover_image instanceof File) {
+        coverBase64 = await fileToBase64(data.cover_image);
+      }
+
+      const galleryBase64s: string[] = [];
+      if (data.gallery_images instanceof FileList) {
+        for (const file of Array.from(data.gallery_images)) {
+          galleryBase64s.push(await fileToBase64(file));
+        }
+      } else if (Array.isArray(data.gallery_images)) {
+        galleryBase64s.push(...data.gallery_images.filter(img => typeof img === 'string'));
+      }
+
       const payload = {
         ...data,
         postal_code: Number(data.postal_code),
         no_of_rooms: Number(data.no_of_rooms),
         no_of_floors: Number(data.no_of_floors),
         default_rating: Number(data.default_rating || 4.0),
-        // Use a placeholder URL string since the backend expects string
-        cover_image:
-          typeof data.cover_image === "string"
-            ? data.cover_image
-            : "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&h=600&fit=crop",
-        gallery_images: Array.isArray(data.gallery_images)
-          ? data.gallery_images
-          : [],
+        cover_image: coverBase64,
+        gallery_images: galleryBase64s,
       };
 
-      console.log("Sending payload to API:", payload);
+      console.log("📡 Sending payload to API:", payload);
 
       const result = await createHotel(payload).unwrap();
 
