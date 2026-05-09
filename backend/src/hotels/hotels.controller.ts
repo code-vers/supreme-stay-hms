@@ -48,6 +48,11 @@ export class HotelsController {
     return this.hotelsService.debugFindAll();
   }
 
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.hotelsService.findOne(id);
+  }
+
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.PROPERTY_OWNER)
   @Patch(':id')
