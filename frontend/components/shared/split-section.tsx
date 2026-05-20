@@ -101,7 +101,6 @@ export default function SplitSection({
         gap-[clamp(0.75rem,2vw,1.5rem)]
         px-2 lg:px-17
         py-14
-        bg-[#f8f5ef]
         overflow-hidden
         ${className}
       `}>
