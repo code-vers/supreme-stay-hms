@@ -14,8 +14,8 @@ export default function Footer() {
     { name: "Twitter", href: "#" },
   ];
   return (
-    <footer className='bg-(--text-brand) text-[#EDE4D8] py-16 px-6 md:px-8'>
-      <div className='max-w-7xl mx-auto'>
+    <footer className='bg-(--text-brand) text-[#EDE4D8] py-16 '>
+      <div className='max-w-480 mx-auto py-3 px-4 sm:px-6 lg:px-30'>
         <div className='grid grid-cols-1 lg:grid-cols-12 gap-12'>
           {/* Left Column - Main Content */}
           <div className='lg:col-span-7'>
