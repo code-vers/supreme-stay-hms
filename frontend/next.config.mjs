@@ -1,3 +1,5 @@
+import path from "path";
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
@@ -13,6 +15,10 @@ const nextConfig = {
         pathname: "/**",
       },
     ],
+  },
+
+  turbopack: {
+    root: path.resolve("./"),
   },
 };
 
