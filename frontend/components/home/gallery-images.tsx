@@ -41,70 +41,70 @@ export default function GalleryImages() {
       </div>
 
       {/* Grid */}
-      <div className='grid grid-cols-2 md:grid-cols-3 grid-rows-2 gap-3 w-full '>
+      <div className='flex gap-3 overflow-x-auto snap-x snap-mandatory md:grid md:grid-cols-3 md:grid-rows-2 md:overflow-visible w-full'>
         {/* Row 1, Col 1 — terrace */}
-        <div className='overflow-hidden aspect-4/3 md:aspect-auto md:h-56 lg:h-96'>
+        <div className='snap-start shrink-0 w-full relative overflow-hidden h-48 sm:h-56 md:h-auto lg:h-96'>
           <Image
             src={images[0].src}
             alt={images[0].alt}
-            className='w-full h-full object-cover'
-            height={500}
-            width={500}
+            fill
+            className='object-cover'
+            sizes='(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw'
           />
         </div>
 
         {/* Row 1, Col 2 — cliffside */}
-        <div className='overflow-hidden aspect-4/3 md:aspect-auto md:h-56 lg:h-96'>
+        <div className='snap-start shrink-0 w-full relative overflow-hidden h-48 sm:h-56 md:h-auto lg:h-96'>
           <Image
             src={images[1].src}
             alt={images[1].alt}
-            className='w-full h-full object-cover'
-            height={500}
-            width={500}
+            fill
+            className='object-cover'
+            sizes='(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw'
           />
         </div>
 
         {/* Col 3, Row 1–2 — wood living room (spans 2 rows) */}
-        <div className='hidden md:block overflow-hidden md:row-span-2 md:h-full'>
+        <div className='hidden md:block relative overflow-hidden md:row-span-2 md:h-full'>
           <Image
             src={images[2].src}
             alt={images[2].alt}
-            className='w-full h-full object-cover'
-            height={500}
-            width={500}
+            fill
+            className='object-cover'
+            sizes='(max-width: 1024px) 50vw, 33vw'
           />
         </div>
 
         {/* Row 2, Col 1 — arched alcove */}
-        <div className='overflow-hidden aspect-4/3 md:aspect-auto md:h-56 lg:h-96'>
+        <div className='snap-start shrink-0 w-full relative overflow-hidden h-48 sm:h-56 md:h-auto lg:h-96'>
           <Image
             src={images[3].src}
             alt={images[3].alt}
-            className='w-full h-full object-cover'
-            height={500}
-            width={500}
+            fill
+            className='object-cover'
+            sizes='(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw'
           />
         </div>
 
         {/* Row 2, Col 2 — colorful sofa */}
-        <div className='overflow-hidden aspect-4/3 md:aspect-auto md:h-56 lg:h-96'>
+        <div className='snap-start shrink-0 w-full relative overflow-hidden h-48 sm:h-56 md:h-auto lg:h-96'>
           <Image
             src={images[4].src}
             alt={images[4].alt}
-            className='w-full h-full object-cover'
-            height={500}
-            width={500}
+            fill
+            className='object-cover'
+            sizes='(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw'
           />
         </div>
 
         {/* Wood room visible on mobile as its own cell */}
-        <div className='md:hidden overflow-hidden aspect-4/3'>
+        <div className='md:hidden snap-start shrink-0 w-full relative overflow-hidden h-48 sm:h-56'>
           <Image
             src={images[2].src}
             alt={images[2].alt}
-            className='w-full h-full object-cover'
-            height={500}
-            width={500}
+            fill
+            className='object-cover'
+            sizes='100vw'
           />
         </div>
       </div>
