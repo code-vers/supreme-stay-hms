@@ -24,7 +24,7 @@ export class HotelsController {
   constructor(private readonly hotelsService: HotelsService) {}
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.PROPERTY_OWNER)
+  @Roles(UserRole.PROPERTY_OWNER, UserRole.SUPER_ADMIN)
   @Post()
   create(
     @Body() createHotelDto: CreateHotelDto,
@@ -54,7 +54,7 @@ export class HotelsController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.PROPERTY_OWNER)
+  @Roles(UserRole.PROPERTY_OWNER, UserRole.SUPER_ADMIN)
   @Patch(':id')
   update(
     @Param('id') id: string,
@@ -65,7 +65,7 @@ export class HotelsController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.PROPERTY_OWNER)
+  @Roles(UserRole.PROPERTY_OWNER, UserRole.SUPER_ADMIN)
   @Delete(':id')
   remove(@Param('id') id: string, @CurrentUser('userId') userId: string) {
     return this.hotelsService.remove(id, userId);

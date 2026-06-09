@@ -19,7 +19,7 @@ export class Hotel {
   @Column({ nullable: true })
   tagline: string;
 
-  @Column()
+  @Column({ type: 'text', nullable: true })
   cover_image: string;
 
   @Column()

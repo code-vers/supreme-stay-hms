@@ -56,7 +56,6 @@ export default function HotelsPage() {
     data: hotelsData,
     isLoading,
     isError,
-    refetch,
   } = useGetOwnedHotelsQuery(queryParams);
 
   const [deleteHotel] = useDeleteHotelMutation();
@@ -75,17 +74,17 @@ export default function HotelsPage() {
 
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this hotel?")) return;
-    
+
     const toastId = toast.loading("Deleting hotel...");
     try {
       await deleteHotel(id).unwrap();
       toast.success("Hotel deleted successfully", { id: toastId });
-      // The invalidatesTags in RTK Query should handle the update, 
-      // but we can refetch manually if needed to be absolute.
-      await refetch();
     } catch (error: any) {
       console.error("❌ Delete error:", error);
-      toast.error(error?.data?.message || "Failed to delete hotel. Please try again.", { id: toastId });
+      toast.error(
+        error?.data?.message || "Failed to delete hotel. Please try again.",
+        { id: toastId },
+      );
     }
   };
 
@@ -283,17 +282,6 @@ export default function HotelsPage() {
                 console.log("📤 Closing modal...");
                 setShowAddForm(false);
               }}
-              onSuccess={async () => {
-                try {
-                  console.log("🔄 Starting refetch from HotelPage...");
-                  const result = await refetch();
-                  console.log("✅ Refetch result:", result);
-                  return result;
-                } catch (error) {
-                  console.error("❌ Refetch failed:", error);
-                  throw error;
-                }
-              }}
             />
           </div>
         </div>
@@ -310,17 +298,6 @@ export default function HotelsPage() {
                 console.log("📤 Closing form modal...");
                 setSelectedHotelId(null);
                 setModalMode(null);
-              }}
-              onSuccess={async () => {
-                try {
-                  console.log("🔄 Refetching hotels after update...");
-                  const result = await refetch();
-                  console.log("✅ Refetch complete");
-                  return result;
-                } catch (error) {
-                  console.error("❌ Refetch failed:", error);
-                  throw error;
-                }
               }}
             />
           </div>
