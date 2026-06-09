@@ -35,12 +35,17 @@ const inputCls = (err?: boolean) =>
   }`;
 
 const fileToDataUrl = (file: File) =>
-  new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result ?? ""));
-    reader.onerror = () => reject(new Error("Failed to read image file"));
-    reader.readAsDataURL(file);
-  });
+new Promise<string>((resolve, reject) => {
+  // 10MB limit
+  if (file.size > 10 * 1024 * 1024) {
+    reject(new Error("File is too large (max 10MB)"));
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = () => resolve(String(reader.result ?? ""));
+  reader.onerror = () => reject(new Error("Failed to read image file"));
+  reader.readAsDataURL(file);
+});
 
 // ── Step indicator ─────────────────────────────────────────────────────────
 function StepIndicator({
@@ -354,9 +359,13 @@ export default function AddHotelForm({
                             onChange={async (e) => {
                               const file = e.target.files?.[0];
                               if (file) {
-                                const dataUrl = await fileToDataUrl(file);
-                                field.onChange(dataUrl);
-                                setCoverPreview(dataUrl);
+                                try {
+                                  const dataUrl = await fileToDataUrl(file);
+                                  field.onChange(dataUrl);
+                                  setCoverPreview(dataUrl);
+                                } catch (error) {
+                                  toast.error(error instanceof Error ? error.message : "File upload failed");
+                                }
                               }
                             }}
                           />
@@ -650,12 +659,16 @@ export default function AddHotelForm({
                               [];
                             const dataUrls: string[] = [];
                             for (let i = 0; i < files.length; i++) {
-                              const dataUrl = await fileToDataUrl(files[i]);
-                              dataUrls.push(dataUrl);
-                              newPreviews.push({
-                                name: files[i].name,
-                                url: dataUrl,
-                              });
+                              try {
+                                const dataUrl = await fileToDataUrl(files[i]);
+                                dataUrls.push(dataUrl);
+                                newPreviews.push({
+                                  name: files[i].name,
+                                  url: dataUrl,
+                                });
+                              } catch (error) {
+                                toast.error(`File ${files[i].name} is too large (max 10MB)`);
+                              }
                             }
                             field.onChange([
                               ...(Array.isArray(field.value)

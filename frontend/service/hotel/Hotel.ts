@@ -27,7 +27,7 @@ export const hotelApi = createApi({
         url: "/",
         params,
       }),
-      providesTags: ["Hotels"],
+      providesTags: [{ type: "Hotels", id: "LIST" }],
     }),
 
     // Get a single hotel
@@ -43,7 +43,7 @@ export const hotelApi = createApi({
         method: "POST",
         body: data,
       }),
-      invalidatesTags: ["Hotels"],
+      invalidatesTags: [{ type: "Hotels", id: "LIST" }],
     }),
 
     // Update a hotel
@@ -54,7 +54,7 @@ export const hotelApi = createApi({
         body: data,
       }),
       invalidatesTags: (result, error, { id }) => [
-        "Hotels",
+        { type: "Hotels", id: "LIST" },
         { type: "Hotels", id },
       ],
     }),
@@ -65,7 +65,7 @@ export const hotelApi = createApi({
         url: `/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["Hotels"],
+      invalidatesTags: [{ type: "Hotels", id: "LIST" }],
     }),
   }),
 });
